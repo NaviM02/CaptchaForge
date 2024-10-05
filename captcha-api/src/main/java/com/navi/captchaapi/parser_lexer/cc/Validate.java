@@ -10,7 +10,7 @@ public class Validate {
             SYMBOLNAMES = new HashMap<>();
             SYMBOLNAMES.put("COMMA", ",");
             SYMBOLNAMES.put("COLON", ":");
-            SYMBOLNAMES.put("ONE", "1.0");
+            SYMBOLNAMES.put("SEMICOLON", ";");
 
             SYMBOLNAMES.put("EQUAL", "=");
             SYMBOLNAMES.put("REALIZAR_SOLICITUD", "realizar_solicitud");

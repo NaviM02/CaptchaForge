@@ -1,0 +1,91 @@
+package com.navi.captchaapi.parser_lexer.cc;
+import java_cup.runtime.*;
+import java.util.*;
+import java.text.DecimalFormat;
+import com.navi.captchaapi.parser_lexer.*;
+
+parser code
+{:
+    public RequestParser(RequestLexer lex) {
+        super(lex);
+        resetBooleans();
+    }
+    //Metodo al que se llama ante algun error sintactico
+    public void syntax_error(Symbol s){
+        String lexeme = s.value.toString();
+        int line = s.left;
+        int col = s.right;
+        System.out.println("ERROR SINTÁCTICO RECUPERADO");
+        System.out.println("\tLexeme: " + lexeme);
+        System.out.println("\trow: " + line);
+        System.out.println("\tcol: " + col);
+        HashMap<String, String> symbolNames = Validate.getSymbolNames();
+        List<Integer> tokens = expected_token_ids();
+        String des = "Se esperaba: ";
+        for(Integer i : tokens) {
+            String fromId = symbl_name_from_id(i);
+            String symbolName = symbolNames.get(fromId);
+            if(symbolName != null){
+                des += "'"+symbolName+ "' o ";
+            }
+            else{
+                if(!fromId.equals("error") && !fromId.equals("EOF")){
+                    des += fromId +" o ";
+                }
+            }
+        }
+        if(des.length() > 3) des = des.substring(0, des.length() - 3);
+        addError(lexeme, line, col, des);
+    }
+
+    //Metodo que se llama en el momento en que ya no es posible una recuperacion
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        String lexeme = s.value.toString();
+        int line = s.left;
+        int col = s.right;
+        System.out.println("ERROR SINTACTICO NO RECUPERABLE");
+        System.out.println("\tLexeme: " + lexeme);
+        System.out.println("\trow: " + line);
+        System.out.println("\tcol: " + col);
+        HashMap<String, String> symbolNames = Validate.getSymbolNames();
+        List<Integer> tokens = expected_token_ids();
+        String des = "Se esperaba: ";
+        for(Integer i : tokens) {
+            String fromId = symbl_name_from_id(i);
+            String symbolName = symbolNames.get(fromId);
+            if(symbolName != null){
+                des += "'"+symbolName+ "' o ";
+            }
+            else{
+                if(!fromId.equals("error") && !fromId.equals("EOF")){
+                    des += fromId +" o ";
+                }
+            }
+        }
+        if(des.length() > 3) des = des.substring(0, des.length() - 3);
+        addError(lexeme, line, col, des);
+    }
+
+    private void addError(String lexeme, int line, int col, String description){
+        ErrorsLP.addError(lexeme, line, col, "Error Sintáctico", description);
+    }
+
+    private void addParameterError(String type, int line, int col){
+        ErrorsLP.addError(type, line, col, "Semántico", "Parametro " + type + " duplicado");
+    }
+    private void addPError(String type, int line, int col){
+        ErrorsLP.addError(type, line, col, "Semántico", "Parametro " + type + " no esperado");
+    }
+    protected int error_sync_size() {
+            return 1;
+    }
+:}
+
+terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM ;
+
+non terminal s;
+
+
+
+start with s;
+
