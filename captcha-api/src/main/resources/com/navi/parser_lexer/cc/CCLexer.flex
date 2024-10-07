@@ -115,6 +115,10 @@ huntil = (HUNTIL)
 while = (WHILE)
 thenwhile = (THENWHILE)
 
+    /* Booleans */
+true = (true)
+false = (False)
+
 /* Operators */
 Plus = [+]
 Minus = [-]
@@ -142,6 +146,7 @@ Colon = [:]
 Semicolon = [;]
 Comma = [,]
 VerticalBar = [|]
+Slash = [/]
 
 /* Double String */
 Q = [\"]
@@ -149,8 +154,9 @@ StringContent = [^\\\n\"]*
 String = {Q}{StringContent}{Q}
 /* Simple String */
 QSingle = [\']
-StringContentSingle = [^\\\n\']
+StringContentSingle = [^\\\n\']*
 StringSingle = {QSingle}{StringContentSingle}{QSingle}
+one_char = {QSingle}[^\\\n\']{QSingle}
 
 /* Numbers */
 digit = [0-9]+
@@ -167,6 +173,10 @@ inline_comment = {init_inline_comment}[^\n]*
 multiline_comment = {init_multiline_comment}[^]*{end_multiline_comment}
 comment = {inline_comment} | {multiline_comment}
 
+/* Identifier */
+letter = [a-zA-Z]
+identifier = {letter}({letter}|{digit}|_)*
+function_id = "FUNCTION_"{identifier}
 %{
     private Symbol symbol(int type){
         return new Symbol(type, yyline+1,yycolumn+1);
@@ -309,6 +319,10 @@ comment = {inline_comment} | {multiline_comment}
 {return symbol(WHILE, yytext());}
 {thenwhile}
 {return symbol(THENWHILE, yytext());}
+{true}
+{return symbol(TRUE, yytext());}
+{false}
+{return symbol(FALSE, yytext());}
 
 {Plus}
 {return symbol(PLUS, yytext());}
@@ -353,38 +367,31 @@ comment = {inline_comment} | {multiline_comment}
 {return symbol(COMMA, yytext());}
 {VerticalBar}
 {return symbol(VERTICAL_BAR, yytext());}
+{Slash}
+{return symbol(SLASH, yytext());}
 
 
 {String}
-{
-    String idParamRegex = "^[a-zA-Z_$-][a-zA-Z0-9_$-]*";
-
-    if(yytext().matches(idParamRegex)) {
-        return symbol(IDENTIFIER, yytext());
-    }
-    else{
-        return symbol(DOUBLE_STRING, yytext());
-    }
-}
+{return symbol(STRING_LITERAL, yytext()); }
 {StringSingle}
-{
-    String idParamRegex = "^[a-zA-Z_$-][a-zA-Z0-9_$-]*";
-    if(yytext().matches(idParamRegex)){
-        return symbol(IDENTIFIER_SIMPLE, yytext());
-    }
-    else{
-        return symbol(SIMPLE_STRING, yytext());
-    }
-}
+{return symbol(SIMPLE_STRING, yytext()); }
+{one_char}
+{return symbol(CHAR_LITERAL, yytext()); }
 
 {number}
 {return symbol(NUMBER, yytext());}
 {double}
-{return symbol(DOUBLE, yytext());}
+{return symbol(NUMBER, yytext());}
 {equal}
 {return symbol(EQUAL, yytext());}
 {comment}
 {return symbol(COMMENT, yytext());}
+{identifier}
+{return symbol(IDENTIFIER, yytext());}
+{function_id}
+{return symbol(FUNCTION_ID, yytext());}
+
+
 
 {WhiteSpace} { /* ignore */ }
 

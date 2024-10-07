@@ -8,7 +8,7 @@ parser code
 {:
     public RequestParser(RequestLexer lex) {
         super(lex);
-        resetBooleans();
+        //resetBooleans();
     }
     //Metodo al que se llama ante algun error sintactico
     public void syntax_error(Symbol s){
@@ -81,11 +81,396 @@ parser code
     }
 :}
 
-terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM ;
+terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM, C_INPUT, C_TEXTAREA, C_SELECT, C_OPTION,
+        C_DIV, C_IMG, C_BR, C_BUTTON, C_H1, C_P, C_SCRIPTING,
+        HREF, BACKGROUND, COLOR, FONT_SIZE, FONT_FAMILY, TEXT_ALIGN, TYPE, ID, NAME, COLS, ROWS,
+        CLASS, SRC, WIDTH, HEIGHT, ALT, ONCLICK,
+        INTEGER, DECIMAL, BOOLEAN, CHAR, STRING,
+        ASC, DESC, LETPAR_NUM, LETIMPAR_NUM, REVERSE, CARACTER_ALEATORIO, NUM_ALEATORIO, ALERT_INFO,
+        EXIT, REDIRECT, INSERT, GET_ELEMENT_BY_ID, GLOBAL,
+        INIT, END, IF, THEN, ELSE, REPEAT, HUNTIL, WHILE, THENWHILE, TRUE, FALSE,
+        PLUS, MINUS, TIMES, DIVISION, LPAREN, RPAREN, REL_OP, OR, AND, NOT, LBRACKET, RBRACKET, LBRACE,
+        RBRACE, LT, GT, EX, COLON, SEMICOLON, COMMA, VERTICAL_BAR, SLASH,
+        STRING_LITERAL, SIMPLE_STRING, NUMBER, CHAR_LITERAL,
+        EQUAL, COMMENT, IDENTIFIER, FUNCTION_ID
+        ;
 
-non terminal s;
+non terminal s, cc, c_cc_body, open_cc, close_cc;
+non terminal c_head, c_head_body, open_head, close_head;
+non terminal c_body, c_body_body, open_body, close_body;
+non terminal open_title, open_link, open_spam, open_input, open_textarea, open_select, open_option, open_div, open_img, open_br, open_button, open_h1, open_p, open_scripting;
+non terminal close_title, close_link, close_spam, close_input, close_textarea, close_select, close_option, close_div, close_img, close_br, close_button, close_h1, close_p, close_scripting;
+non terminal c_title, c_link, c_spam, c_input, c_textarea, c_select, c_option, c_div, c_img, c_br, c_button, c_h1, c_p, c_scripting;
+non terminal c_title_body, c_link_body, c_spam_body, c_input_body, c_textarea_body, c_select_body, c_option_body, c_div_body, c_img_body, c_br_body, c_button_body, c_h1_body, c_p_body, c_scripting_body;
+non terminal head_labels, body_label, body_labels;
+non terminal cc_label;
+
+non terminal parameter, parameters;
+non terminal href, background, color, font_size, font_family, text_align, type, id, name, cols, rows, clase, src, width, height, alt, onclick;
+
+non terminal integer, string, decimal, char, boolean;
+non terminal listIds;
+
+non terminal variable_id;
+non terminal id;
+
+non terminal variable_declarators;
+non terminal variable_declarator;
+non terminal variable_assignment;
+non terminal variable_type;
+
+non terminal method_declarator;
+non terminal method_block;
+non terminal init_block, end_block;
+non terminal block;
+non terminal body_block_opt;
+non terminal body_block;
+non terminal body_stmt;
 
 
+non terminal function_call_stmt;
+non terminal function_call_return;
+non terminal param, params;
+non terminal if_stmt;
+non terminal else_opt;
+non terminal else_stmt;
+non terminal else_if_opt;
+non terminal else_if_stmts;
+non terminal else_if_stmt;
+non terminal for_stmt;
+non terminal init_for;
+non terminal while_stmt;
+
+non terminal expression;
+non terminal conditional_expression;
+non terminal conditional_or_expression;
+non terminal conditional_and_expression;
+non terminal relational_expression;
+non terminal additive_expression;
+non terminal multiplicative_expression;
+non terminal unary_expression;
+non terminal value_literal;
+non terminal string_literal;
+non terminal char_literal;
+non terminal getElementById;
 
 start with s;
+
+s ::= cc;
+/* Open labels */
+open_cc         ::= LT C_CC parameters GT;
+open_head       ::= LT C_HEAD GT;
+open_body       ::= LT C_BODY GT;
+open_title      ::= LT C_TITLE GT;
+open_link       ::= LT C_LINK parameters GT;
+open_spam       ::= LT C_SPAM parameters GT;
+open_input      ::= LT C_INPUT parameters GT;
+open_textarea   ::= C_TEXTAREA parameters C_CC GT;
+open_select     ::= LT C_SELECT parameters GT;
+open_option     ::= LT C_OPTION parameters GT;
+open_div        ::= LT C_DIV parameters GT;
+open_img        ::= LT C_IMG parameters GT;
+open_br         ::= LT C_BR GT;
+open_button     ::= LT C_BUTTON parameters GT;
+open_h1         ::= LT C_H1 parameters GT;
+open_p          ::= LT C_P parameters GT;
+open_scripting  ::= LT C_SCRIPTING GT;
+/* Close labels */
+close_cc        ::= LT SLASH C_CC GT;
+close_head      ::= LT SLASH C_HEAD GT;
+close_body      ::= LT SLASH C_BODY GT;
+close_title     ::= LT SLASH C_TITLE GT;
+close_link      ::= LT SLASH C_LINK GT;
+close_spam      ::= LT SLASH C_SPAM GT;
+close_input     ::= LT SLASH C_INPUT GT;
+close_textarea  ::= LT SLASH C_TEXTAREA GT;
+close_select    ::= LT SLASH C_SELECT GT;
+close_option    ::= LT SLASH C_OPTION GT;
+close_div       ::= LT SLASH C_DIV GT;
+close_img       ::= LT SLASH C_IMG GT;
+close_br        ::= LT SLASH C_BR GT;
+close_button    ::= LT SLASH C_BUTTON GT;
+close_h1        ::= LT SLASH C_H1 GT;
+close_p         ::= LT SLASH C_P GT;
+close_scripting ::= LT SLASH C_SCRIPTING GT;
+/* Labels */
+cc ::= open_cc c_cc_body close_cc;
+
+c_cc_body ::= c_head c_body;
+
+c_head ::= open_head head_labels close_head
+            |open_head close_head
+            ;
+
+
+c_title ::= open_title close_title;
+c_link ::= open_link close_link;
+
+c_head_body::=
+                ;
+
+head_labels ::= c_title c_link
+                | c_link c_title
+                ;
+
+
+c_body ::= open_body body_labels close_body;
+c_spam ::= open_spam body_labels close_spam;
+c_input ::= open_input body_labels close_input;
+c_textarea ::= open_textarea body_labels close_textarea;
+c_select ::= open_select body_labels close_select;
+c_option ::= open_option body_labels close_option;
+c_div ::= open_div body_labels close_div;
+c_img ::= open_img body_labels close_img;
+c_br ::= open_br body_labels close_br;
+c_button ::= open_button body_labels close_button;
+c_h1 ::= open_h1 body_labels close_h1;
+c_p ::= open_p body_labels close_p;
+c_scripting ::= open_scripting close_scripting;
+
+body_labels ::= body_label
+            | body_labels body_label
+            ;
+
+body_label ::= c_spam
+                | c_input
+                | c_textarea
+                | c_select
+                | c_option
+                | c_div
+                | c_img
+                | c_br
+                | c_button
+                | c_h1
+                | c_p
+                | c_scripting
+                ;
+
+parameters ::= parameter
+            | parameters parameter
+            ;
+
+parameter ::= href
+            | background
+            | color
+            | font_size
+            | font_family
+            | text_align
+            | type
+            | id
+            | name
+            | cols
+            | rows
+            | clase
+            | src
+            | width
+            | height
+            | alt
+            | onclick
+            ;
+
+href ::= LBRACKET HREF EQUAL DOUBLE_STRING RBRACKET;
+
+background ::= LBRACKET BACKGROUND EQUAL DOUBLE_STRING RBRACKET;
+
+color ::= LBRACKET COLOR EQUAL DOUBLE_STRING RBRACKET;
+
+font_size ::= LBRACKET FONT_SIZE EQUAL DOUBLE_STRING RBRACKET;
+
+font_family ::= LBRACKET FONT_FAMILY EQUAL DOUBLE_STRING RBRACKET;
+
+text_align ::= LBRACKET TEXT_ALIGN EQUAL DOUBLE_STRING RBRACKET;
+
+type ::= LBRACKET TYPE EQUAL DOUBLE_STRING RBRACKET;
+
+id ::= LBRACKET ID EQUAL DOUBLE_STRING RBRACKET;
+
+name ::= LBRACKET NAME EQUAL DOUBLE_STRING RBRACKET;
+
+cols ::= LBRACKET COLS EQUAL DOUBLE_STRING RBRACKET;
+
+rows ::= LBRACKET ROWS EQUAL DOUBLE_STRING RBRACKET;
+
+clase ::= LBRACKET CLASS EQUAL DOUBLE_STRING RBRACKET;
+
+src ::= LBRACKET SRC EQUAL DOUBLE_STRING RBRACKET;
+
+width ::= LBRACKET WIDTH EQUAL DOUBLE_STRING RBRACKET;
+
+height ::= LBRACKET HEIGHT EQUAL DOUBLE_STRING RBRACKET;
+
+alt ::= LBRACKET ALT EQUAL DOUBLE_STRING RBRACKET;
+
+onclick ::= LBRACKET ONCLICK EQUAL DOUBLE_STRING RBRACKET;
+
+
+/* SCRIPTING LABEL BODY */
+
+
+variable_declarators ::= variable_type variable_declarator SEMICOLON
+                        ;
+
+variable_declarator ::= variable_id
+                    | variable_assignment
+                    ;
+
+listIds ::= variable_id
+            | listIds COMMA variable_id
+            ;
+
+variable_id ::= IDENTIFIER;
+
+variable_assignment ::= listIds EQUAL expression
+                    ;
+
+variable_type ::= INTEGER
+                | STRING
+                | DECIMAL
+                | CHAR
+                | BOOLEAN
+                ;
+
+method_declarator ::= FUNCTION_ID LPAREN RPAREN method_block
+                    ;
+
+method_block ::= LBRACKET body_block_opt RBRACKET
+                ;
+
+body_block_opt ::=
+                | body_block
+                ;
+
+body_block ::= body_stmt
+                | body_block body_stmt
+                ;
+
+body_stmt ::= variable_declarators
+            | variable_assignment
+            | function_call_stmt
+            | if_stmt
+            | for_stmt
+            | while_stmt
+            ;
+
+function_call_stmt ::= ALERT_INFO LPAREN expression RPAREN SEMICOLON
+                    | EXIT LPAREN RPAREN SEMICOLON
+                    | REDIRECT LPAREN RPAREN SEMICOLON
+                    | INSERT LPAREN params RPAREN SEMICOLON
+                    ;
+
+function_call_return ::= ASC LPAREN variable_id RPAREN SEMICOLON
+                        | DESC LPAREN variable_id RPAREN SEMICOLON
+                        | LETPAR_NUM LPAREN variable_id RPAREN SEMICOLON
+                        | LETIMPAR_NUM LPAREN variable_id RPAREN SEMICOLON
+                        | REVERSE LPAREN variable_id RPAREN SEMICOLON
+                        | CARACTER_ALEATORIO LPAREN RPAREN SEMICOLON
+                        | NUM_ALEATORIO LPAREN RPAREN SEMICOLON
+                        | GET_ELEMENT_BY_ID LPAREN SIMPLE_STRING RPAREN SEMICOLON
+                        ;
+
+params ::= param
+        | params COMMA param
+        ;
+
+param ::= variable_id
+        | SIMPLE_STRING
+        ;
+
+init_block ::= INIT LBRACE COLON
+            ;
+
+end_block ::= COLON RBRACE END
+            ;
+
+block_opt ::= init_block body_block_opt end_block
+        ;
+
+block ::= block_opt
+        | body_stmt
+        ;
+
+
+if_stmt ::= IF LPAREN expression RPAREN THEN block else_if_opt else_opt
+            ;
+
+else_if_opt ::=
+            | else_if_stmts
+            ;
+
+else_if_stmts ::= else_if_stmt
+                | else_if_stmts else_if_stmt
+                ;
+
+else_if_stmt ::= ELSE IF LPAREN expression RPAREN THEN block
+                ;
+
+else_opt ::=
+            | else_stmt
+            ;
+
+else_stmt ::= ELSE block
+            ;
+
+for_stmt ::= REPEAT LPAREN init_for RPAREN HUNTIL LPAREN expression RPAREN block
+            ;
+
+init_for ::= variable_declarator
+            | variable_assignment
+            ;
+
+while_stmt ::= WHILE LPAREN expression RPAREN THENWHILE block
+            ;
+
+
+
+
+
+
+expression ::= conditional_expression
+            ;
+
+conditional_expression ::= conditional_or_expression
+                        ;
+
+conditional_or_expression ::= conditional_and_expression
+                            | conditional_or_expression OR conditional_and_expression
+                            ;
+
+conditional_and_expression ::= relational_expression
+                        | conditional_and_expression AND relational_expression
+                        ;
+
+relational_expression ::= additive_expression
+                        | relational_expression REL_OP additive_expression
+                        ;
+
+additive_expression ::= multiplicative_expression
+                        | additive_expression PLUS multiplicative_expression
+                        | additive_expression MINUS multiplicative_expression
+                        ;
+
+multiplicative_expression ::= unary_expression
+                            | multiplicative_expression TIMES unary_expression
+                            | multiplicative_expression DIVISION unary_expression
+                            ;
+
+unary_expression ::= value_literal
+                    | variable_id
+                    | function_call_return
+                    | MINUS unary_expression
+                    | LPAREN expression RPAREN
+                    ;
+
+value_literal ::= string_literal
+                | NUMBER
+                | char_literal
+                | TRUE
+                | FALSE
+                ;
+
+string_literal ::= STRING_LITERAL
+                ;
+
+char_literal ::= CHAR_LITERAL
+                ;
 
