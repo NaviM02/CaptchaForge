@@ -152,6 +152,7 @@ non terminal unary_expression;
 non terminal value_literal;
 non terminal string_literal;
 non terminal char_literal;
+non terminal simple_string;
 non terminal getElementById;
 
 start with s;
@@ -365,7 +366,7 @@ function_call_return ::= ASC LPAREN variable_id RPAREN SEMICOLON
                         | REVERSE LPAREN variable_id RPAREN SEMICOLON
                         | CARACTER_ALEATORIO LPAREN RPAREN SEMICOLON
                         | NUM_ALEATORIO LPAREN RPAREN SEMICOLON
-                        | GET_ELEMENT_BY_ID LPAREN SIMPLE_STRING RPAREN SEMICOLON
+                        | GET_ELEMENT_BY_ID LPAREN simple_string RPAREN SEMICOLON
                         ;
 
 params ::= param
@@ -373,7 +374,7 @@ params ::= param
         ;
 
 param ::= variable_id
-        | SIMPLE_STRING
+        | simple_string
         ;
 
 init_block ::= INIT LBRACE COLON
@@ -468,9 +469,10 @@ value_literal ::= string_literal
                 | FALSE
                 ;
 
-string_literal ::= STRING_LITERAL
+string_literal ::= STRING_LITERAL:s {: RESULT = s.replaceAll("\"", ""); :}
                 ;
 
-char_literal ::= CHAR_LITERAL
+char_literal ::= CHAR_LITERAL:c {: RESULT = c.replaceAll("'", ""); :}
                 ;
 
+simple_string ::= SIMPLE_STRING:s {: RESULT = s.replaceAll("'", ""); :};
