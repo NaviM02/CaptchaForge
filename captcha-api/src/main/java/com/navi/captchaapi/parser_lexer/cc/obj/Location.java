@@ -1,4 +1,4 @@
-package com.navi.captchaapi.parser_lexer.cc.obj.node;
+package com.navi.captchaapi.parser_lexer.cc.obj;
 import lombok.*;
 
 @Getter @Setter

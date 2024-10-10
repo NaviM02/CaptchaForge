@@ -105,10 +105,11 @@ non terminal c_title_body, c_link_body, c_spam_body, c_input_body, c_textarea_bo
 non terminal head_labels, body_label, body_labels;
 non terminal cc_label;
 
-non terminal parameter, parameters;
-non terminal href, background, color, font_size, font_family, text_align, type, id, name, cols, rows, clase, src, width, height, alt, onclick;
+non terminal ArrayList<Parameter> parameters_opt, parameters;
+non terminal Parameter parameter;
+non terminal Parameter href, background, color, font_size, font_family, text_align, type, id, name, cols, rows, clase, src, width, height, alt, onclick;
 
-non terminal integer, string, decimal, char, boolean;
+
 non terminal listIds;
 
 non terminal variable_id;
@@ -150,7 +151,7 @@ non terminal additive_expression;
 non terminal multiplicative_expression;
 non terminal unary_expression;
 non terminal value_literal;
-non terminal string_literal;
+non terminal String string_literal;
 non terminal char_literal;
 non terminal simple_string;
 non terminal getElementById;
@@ -159,22 +160,22 @@ start with s;
 
 s ::= cc;
 /* Open labels */
-open_cc         ::= LT C_CC parameters GT;
+open_cc         ::= LT C_CC parameters_opt GT;
 open_head       ::= LT C_HEAD GT;
 open_body       ::= LT C_BODY GT;
 open_title      ::= LT C_TITLE GT;
-open_link       ::= LT C_LINK parameters GT;
-open_spam       ::= LT C_SPAM parameters GT;
-open_input      ::= LT C_INPUT parameters GT;
-open_textarea   ::= C_TEXTAREA parameters C_CC GT;
-open_select     ::= LT C_SELECT parameters GT;
-open_option     ::= LT C_OPTION parameters GT;
-open_div        ::= LT C_DIV parameters GT;
-open_img        ::= LT C_IMG parameters GT;
+open_link       ::= LT C_LINK parameters_opt GT;
+open_spam       ::= LT C_SPAM parameters_opt GT;
+open_input      ::= LT C_INPUT parameters_opt GT;
+open_textarea   ::= C_TEXTAREA parameters_opt C_CC GT;
+open_select     ::= LT C_SELECT parameters_opt GT;
+open_option     ::= LT C_OPTION parameters_opt GT;
+open_div        ::= LT C_DIV parameters_opt GT;
+open_img        ::= LT C_IMG parameters_opt GT;
 open_br         ::= LT C_BR GT;
-open_button     ::= LT C_BUTTON parameters GT;
-open_h1         ::= LT C_H1 parameters GT;
-open_p          ::= LT C_P parameters GT;
+open_button     ::= LT C_BUTTON parameters_opt GT;
+open_h1         ::= LT C_H1 parameters_opt GT;
+open_p          ::= LT C_P parameters_opt GT;
 open_scripting  ::= LT C_SCRIPTING GT;
 /* Close labels */
 close_cc        ::= LT SLASH C_CC GT;
@@ -215,20 +216,6 @@ head_labels ::= c_title c_link
                 ;
 
 
-c_body ::= open_body body_labels close_body;
-c_spam ::= open_spam body_labels close_spam;
-c_input ::= open_input body_labels close_input;
-c_textarea ::= open_textarea body_labels close_textarea;
-c_select ::= open_select body_labels close_select;
-c_option ::= open_option body_labels close_option;
-c_div ::= open_div body_labels close_div;
-c_img ::= open_img body_labels close_img;
-c_br ::= open_br body_labels close_br;
-c_button ::= open_button body_labels close_button;
-c_h1 ::= open_h1 body_labels close_h1;
-c_p ::= open_p body_labels close_p;
-c_scripting ::= open_scripting close_scripting;
-
 body_labels ::= body_label
             | body_labels body_label
             ;
@@ -245,64 +232,183 @@ body_label ::= c_spam
                 | c_h1
                 | c_p
                 | c_scripting
+                |
                 ;
 
-parameters ::= parameter
-            | parameters parameter
+c_body ::= open_body:p body_labels:l close_body
+        {:
+        RESULT = new Label(pleft, pright, Label.BODY, p, l);
+        :}
+        ;
+c_spam ::= open_spam body_labels close_spam;
+c_input ::= open_input body_labels close_input;
+c_textarea ::= open_textarea body_labels close_textarea;
+c_select ::= open_select body_labels close_select;
+c_option ::= open_option body_labels close_option;
+c_div ::= open_div body_labels close_div;
+c_img ::= open_img body_labels close_img;
+c_br ::= open_br body_labels close_br;
+c_button ::= open_button body_labels close_button;
+c_h1 ::= open_h1 body_labels close_h1;
+c_p ::= open_p body_labels close_p;
+c_scripting ::= open_scripting close_scripting;
+
+
+parameters_opt ::=
+                {:
+                RESULT = new ArrayList<>();
+                :}
+                | parameters:ps
+                {:
+                RESULT = ps;
+                :}
+                ;
+
+parameters ::= parameter:p
+            {:
+            var parameters = new ArrayList<>();
+            parameters.add(p);
+            RESULT = parameters;
+            :}
+            | parameters:ps parameter:p
+            {:
+            ps.add(p);
+            RESULT = ps;
+            :}
             ;
 
-parameter ::= href
-            | background
-            | color
-            | font_size
-            | font_family
-            | text_align
-            | type
-            | id
-            | name
-            | cols
-            | rows
-            | clase
-            | src
-            | width
-            | height
-            | alt
-            | onclick
+parameter ::= href:p
+            {:
+            RESULT = p;
+            :}
+            | background:p
+            {:
+            RESULT = p;
+            :}
+            | color:p
+            {:
+            RESULT = p;
+            :}
+            | font_size:p
+            {:
+            RESULT = p;
+            :}
+            | font_family:p
+            {:
+            RESULT = p;
+            :}
+            | text_align:p
+            {:
+            RESULT = p;
+            :}
+            | type:p
+            {:
+            RESULT = p;
+            :}
+            | id:p
+            {:
+            RESULT = p;
+            :}
+            | name:p
+            {:
+            RESULT = p;
+            :}
+            | cols:p
+            {:
+            RESULT = p;
+            :}
+            | rows:p
+            {:
+            RESULT = p;
+            :}
+            | clase:p
+            {:
+            RESULT = p;
+            :}
+            | src:p
+            {:
+            RESULT = p;
+            :}
+            | width:p
+            {:
+            RESULT = p;
+            :}
+            | height:p
+            {:
+            RESULT = p;
+            :}
+            | alt:p
+            {:
+            RESULT = p;
+            :}
+            | onclick:p
+            {:
+            RESULT = p;
+            :}
             ;
 
-href ::= LBRACKET HREF EQUAL DOUBLE_STRING RBRACKET;
+href ::= LBRACKET HREF EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.HREF, s); :};
 
-background ::= LBRACKET BACKGROUND EQUAL DOUBLE_STRING RBRACKET;
+background ::= LBRACKET BACKGROUND EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.BACKGROUND, s); :};
 
-color ::= LBRACKET COLOR EQUAL DOUBLE_STRING RBRACKET;
+color ::= LBRACKET COLOR EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.COLOR, s); :}
+        ;
 
-font_size ::= LBRACKET FONT_SIZE EQUAL DOUBLE_STRING RBRACKET;
+font_size ::= LBRACKET FONT_SIZE EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.FONT_SIZE, s); :};
 
-font_family ::= LBRACKET FONT_FAMILY EQUAL DOUBLE_STRING RBRACKET;
+font_family ::= LBRACKET FONT_FAMILY EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.FONT_FAMILY, s); :};
 
-text_align ::= LBRACKET TEXT_ALIGN EQUAL DOUBLE_STRING RBRACKET;
+text_align ::= LBRACKET TEXT_ALIGN EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.TEXT_ALIGN, s); :}
+        ;
 
-type ::= LBRACKET TYPE EQUAL DOUBLE_STRING RBRACKET;
+type ::= LBRACKET TYPE EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.TYPE, s); :}
+        ;
 
-id ::= LBRACKET ID EQUAL DOUBLE_STRING RBRACKET;
+id ::= LBRACKET ID EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.ID, s); :};
 
-name ::= LBRACKET NAME EQUAL DOUBLE_STRING RBRACKET;
+name ::= LBRACKET NAME EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.NAME, s); :}
+        ;
 
-cols ::= LBRACKET COLS EQUAL DOUBLE_STRING RBRACKET;
+cols ::= LBRACKET COLS EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.COLS, s); :}
+        ;
 
-rows ::= LBRACKET ROWS EQUAL DOUBLE_STRING RBRACKET;
+rows ::= LBRACKET ROWS EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.ROWS, s); :}
+        ;
 
-clase ::= LBRACKET CLASS EQUAL DOUBLE_STRING RBRACKET;
+clase ::= LBRACKET CLASS EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.CLASS, s); :}
+        ;
 
-src ::= LBRACKET SRC EQUAL DOUBLE_STRING RBRACKET;
+src ::= LBRACKET SRC EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.SRC, s); :}
+        ;
 
-width ::= LBRACKET WIDTH EQUAL DOUBLE_STRING RBRACKET;
+width ::= LBRACKET WIDTH EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.WIDTH, s); :}
+        ;
 
-height ::= LBRACKET HEIGHT EQUAL DOUBLE_STRING RBRACKET;
+height ::= LBRACKET HEIGHT EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.HEIGHT, s); :}
+        ;
 
-alt ::= LBRACKET ALT EQUAL DOUBLE_STRING RBRACKET;
+alt ::= LBRACKET ALT EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.ALT, s); :}
+        ;
 
-onclick ::= LBRACKET ONCLICK EQUAL DOUBLE_STRING RBRACKET;
+onclick ::= LBRACKET ONCLICK EQUAL string_literal:s RBRACKET
+        {: RESULT = new Parameter(sleft, sright, Parameter.ONCLICK, s); :}
+        ;
 
 
 /* SCRIPTING LABEL BODY */

@@ -1,5 +1,7 @@
 package com.navi.captchaapi.parser_lexer.cc.obj.node;
 
+import com.navi.captchaapi.parser_lexer.cc.obj.Location;
+
 public abstract class Node {
     public Location loc;
 

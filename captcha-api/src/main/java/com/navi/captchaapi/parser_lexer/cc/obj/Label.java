@@ -1,6 +1,7 @@
 package com.navi.captchaapi.parser_lexer.cc.obj;
 import lombok.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 @Getter @Setter @ToString
@@ -26,23 +27,24 @@ public class Label {
     public static final String[] LABELS = {"HTML", "HEAD", "TITLE", "LINK", "BODY", "SPAM", "INPUT",
         "TEXTAREA", "SELECTED", "OPTION", "DIV", "IMG", "BR", "BUTTON", "H1", "P", "SCRIPT"};
 
-    private ArrayList<Label> labels;
+    private Location loc;
     private int type;
-    private int line, col;
+    private ArrayList<Parameter> parameters;
+    private ArrayList<Label> labels;
 
     public Label(){
 
     }
-    public Label(int type, int line, int col){
+    public Label(int line, int col, int type){
+        this.loc = new Location(line, col);
         this.type = type;
-        this.line = line;
-        this.col = col;
+        this.parameters = new ArrayList<>();
         this.labels = new ArrayList<>();
     }
-    public Label(int type, int line, int col, ArrayList<Label> labels){
+    public Label(int line, int col, int type, ArrayList<Parameter> parameters, ArrayList<Label> labels){
+        this.loc = new Location(line, col);
         this.type = type;
-        this.line = line;
-        this.col = col;
+        this.parameters = parameters;
         this.labels = labels;
     }
 
