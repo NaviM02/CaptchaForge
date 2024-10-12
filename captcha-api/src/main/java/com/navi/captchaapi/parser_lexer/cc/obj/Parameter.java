@@ -2,7 +2,7 @@ package com.navi.captchaapi.parser_lexer.cc.obj;
 import lombok.*;
 
 @Getter @Setter @ToString
-@NoArgsConstructor @AllArgsConstructor
+@AllArgsConstructor
 public class Parameter {
     public static final int HREF = 1;
     public static final int BACKGROUND = 2;

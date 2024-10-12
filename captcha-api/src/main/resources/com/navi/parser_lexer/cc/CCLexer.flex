@@ -15,27 +15,27 @@ b = [bB]
 c = [cC]
 d = [dD]
 e = [eE]
-f = [fF]
+//f = [fF]
 g = [gG]
 h = [hH]
 i = [iI]
-j = [jJ]
+//j = [jJ]
 k = [kK]
 l = [lL]
 m = [mM]
 n = [nN]
 o = [oO]
 p = [pP]
-q = [qQ]
+//q = [qQ]
 r = [rR]
 s = [sS]
 t = [tT]
 u = [uU]
 v = [vV]
-w = [wW]
+//w = [wW]
 x = [xX]
 y = [yY]
-z = [zZ]
+//z = [zZ]
 
 LineTerminator = \r|\n|\r\n
 WhiteSpace = {LineTerminator} | [ \t\f]
@@ -59,7 +59,7 @@ c_br = {c}_{b}{r}
 c_button = {c}_{b}{u}{t}{t}{o}{n}
 c_h1 = {c}_{h}1
 c_p = {c}_{p}
-c_scripting = {c}_{s}{c}{r}{p}{t}{i}{n}{g}
+c_scripting = {c}_{s}{c}{r}{i}{p}{t}{i}{n}{g}
 
     /* Parameters */
 href = (href)
@@ -78,7 +78,7 @@ src = (src)
 width = (width)
 height = (height)
 alt = (alt)
-onclick = (onclick\(\))
+onclick = (onclick)
 
     /* Data type */
 integer = (integer)
@@ -100,7 +100,7 @@ exit = (EXIT)
 redirect = (REDIRECT)
 insert = (INSERT)
 getElemenById = (getElemenById)
-
+on_load = (ON_LOAD)
     /* Mode */
 global = (@global)
 
@@ -127,7 +127,7 @@ Division = [\/]
 LParen = [\(]
 RParen = [\)]
 
-relatedOperations = "==" | "!=" | "<" | "<=" | ">" | ">="
+relatedOperations = "==" | "!=" | "<=" | ">="
 or = "||"
 and = "&&"
 not = "!"
@@ -141,22 +141,20 @@ LBrace = [\{]
 RBrace = [\}]
 LThan = [<]
 GThan = [>]
-EX = [!]
 Colon = [:]
 Semicolon = [;]
 Comma = [,]
 VerticalBar = [|]
-Slash = [/]
 
 /* Double String */
 Q = [\"]
 StringContent = [^\\\n\"]*
 String = {Q}{StringContent}{Q}
 /* Simple String */
-QSingle = [\']
-StringContentSingle = [^\\\n\']*
+QSingle = \'
+StringContentSingle = ([^\'\\])([^\'\\])+
 StringSingle = {QSingle}{StringContentSingle}{QSingle}
-one_char = {QSingle}[^\\\n\']{QSingle}
+one_char = {QSingle}[^\'\\]{QSingle}
 
 /* Numbers */
 digit = [0-9]+
@@ -176,13 +174,15 @@ comment = {inline_comment} | {multiline_comment}
 /* Identifier */
 letter = [a-zA-Z]
 identifier = {letter}({letter}|{digit}|_)*
+text = [_`.\|a-zA-Z0-9áéíóú¿?‘’“”¡@][-_.\/`\|a-zA-Z0-9áéíóú¿?‘’“”¡@]*
 function_id = "FUNCTION_"{identifier}
+
 %{
     private Symbol symbol(int type){
         return new Symbol(type, yyline+1,yycolumn+1);
     }
     private Symbol symbol(int type, Object value){
-        //System.out.println(type + " line: " + (yyline+1) + " col: "+(yycolumn+1) + " " + value);
+        System.out.println(type + " line: " + (yyline+1) + " col: "+(yycolumn+1) + " " + value);
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
     private void error(){
@@ -297,6 +297,10 @@ function_id = "FUNCTION_"{identifier}
 {return symbol(INSERT, yytext());          }
 {getElemenById}
 {return symbol(GET_ELEMENT_BY_ID, yytext());          }
+{on_load}
+{return symbol(ON_LOAD, yytext()); }
+{function_id}
+{return symbol(FUNCTION_ID, yytext());}
 
 {global}
 {return symbol(GLOBAL, yytext());}
@@ -331,7 +335,7 @@ function_id = "FUNCTION_"{identifier}
 {Times}
 {return symbol(TIMES, yytext());}
 {Division}
-{return symbol(DIVISION, yytext());}
+{return symbol(SLASH, yytext());}
 {LParen}
 {return symbol(LPAREN, yytext());}
 {RParen}
@@ -357,8 +361,6 @@ function_id = "FUNCTION_"{identifier}
 {return symbol(LT, yytext());}
 {GThan}
 {return symbol(GT, yytext());}
-{EX}
-{return symbol(EX, yytext());}
 {Colon}
 {return symbol(COLON, yytext());}
 {Semicolon}
@@ -367,8 +369,6 @@ function_id = "FUNCTION_"{identifier}
 {return symbol(COMMA, yytext());}
 {VerticalBar}
 {return symbol(VERTICAL_BAR, yytext());}
-{Slash}
-{return symbol(SLASH, yytext());}
 
 
 {String}
@@ -385,17 +385,18 @@ function_id = "FUNCTION_"{identifier}
 {equal}
 {return symbol(EQUAL, yytext());}
 {comment}
-{return symbol(COMMENT, yytext());}
+{/*return symbol(COMMENT, yytext());*/}
 {identifier}
 {return symbol(IDENTIFIER, yytext());}
-{function_id}
-{return symbol(FUNCTION_ID, yytext());}
+{text}
+{return symbol(TEXT, yytext());}
+
 
 
 
 {WhiteSpace} { /* ignore */ }
 
-[\^°¬¡¿\w]+
+[\^°¬\w]+
 {ErrorsLP.addError(yytext(), yyline+1, yycolumn+1, "Error Léxico","Cadena no definida");}
 
 [^]                 {error(); }

@@ -3,8 +3,9 @@ package com.navi.captchaapi.parser_lexer;
 import java.util.ArrayList;
 import lombok.*;
 
-@Getter
+@Getter @Setter
 public class ErrorsLP {
+    @Getter
     private static ArrayList<TError> errors = new ArrayList<>();
 
     public static void addError(String lexeme, int line, int col, String type, String description){

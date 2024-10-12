@@ -3,16 +3,19 @@ import java_cup.runtime.*;
 import java.util.*;
 import java.text.DecimalFormat;
 import com.navi.captchaapi.parser_lexer.*;
+import com.navi.captchaapi.parser_lexer.cc.obj.*;
 
 parser code
 {:
-    public RequestParser(RequestLexer lex) {
+    public Label label = new Label();
+    public CCParser(CCLexer lex) {
         super(lex);
         //resetBooleans();
     }
     //Metodo al que se llama ante algun error sintactico
     public void syntax_error(Symbol s){
-        String lexeme = s.value.toString();
+        String lexeme = "";
+        if(s.value != null) lexeme = s.value.toString();
         int line = s.left;
         int col = s.right;
         System.out.println("ERROR SINTÁCTICO RECUPERADO");
@@ -40,7 +43,8 @@ parser code
 
     //Metodo que se llama en el momento en que ya no es posible una recuperacion
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
-        String lexeme = s.value.toString();
+        String lexeme = "";
+        if(s.value != null) lexeme = s.value.toString();
         int line = s.left;
         int col = s.right;
         System.out.println("ERROR SINTACTICO NO RECUPERABLE");
@@ -87,33 +91,33 @@ terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM, C_INPUT, C_TEXTAREA, C_S
         CLASS, SRC, WIDTH, HEIGHT, ALT, ONCLICK,
         INTEGER, DECIMAL, BOOLEAN, CHAR, STRING,
         ASC, DESC, LETPAR_NUM, LETIMPAR_NUM, REVERSE, CARACTER_ALEATORIO, NUM_ALEATORIO, ALERT_INFO,
-        EXIT, REDIRECT, INSERT, GET_ELEMENT_BY_ID, GLOBAL,
+        EXIT, REDIRECT, INSERT, ON_LOAD, GET_ELEMENT_BY_ID, GLOBAL,
         INIT, END, IF, THEN, ELSE, REPEAT, HUNTIL, WHILE, THENWHILE, TRUE, FALSE,
-        PLUS, MINUS, TIMES, DIVISION, LPAREN, RPAREN, REL_OP, OR, AND, NOT, LBRACKET, RBRACKET, LBRACE,
-        RBRACE, LT, GT, EX, COLON, SEMICOLON, COMMA, VERTICAL_BAR, SLASH,
-        STRING_LITERAL, SIMPLE_STRING, NUMBER, CHAR_LITERAL,
-        EQUAL, COMMENT, IDENTIFIER, FUNCTION_ID
+        LT, GT
+
         ;
 
-non terminal s, cc, c_cc_body, open_cc, close_cc;
-non terminal c_head, c_head_body, open_head, close_head;
-non terminal c_body, c_body_body, open_body, close_body;
-non terminal open_title, open_link, open_spam, open_input, open_textarea, open_select, open_option, open_div, open_img, open_br, open_button, open_h1, open_p, open_scripting;
-non terminal close_title, close_link, close_spam, close_input, close_textarea, close_select, close_option, close_div, close_img, close_br, close_button, close_h1, close_p, close_scripting;
-non terminal c_title, c_link, c_spam, c_input, c_textarea, c_select, c_option, c_div, c_img, c_br, c_button, c_h1, c_p, c_scripting;
-non terminal c_title_body, c_link_body, c_spam_body, c_input_body, c_textarea_body, c_select_body, c_option_body, c_div_body, c_img_body, c_br_body, c_button_body, c_h1_body, c_p_body, c_scripting_body;
-non terminal head_labels, body_label, body_labels;
-non terminal cc_label;
+terminal String STRING_LITERAL, SIMPLE_STRING, NUMBER, CHAR_LITERAL,
+                EQUAL, IDENTIFIER, TEXT, FUNCTION_ID,
+                PLUS, MINUS, TIMES, SLASH, LPAREN, RPAREN,
+                COLON, SEMICOLON, COMMA, VERTICAL_BAR,
+                REL_OP, OR, AND, NOT, LBRACKET, RBRACKET, LBRACE, RBRACE
+                ;
+
+non terminal s;
+non terminal Label cc;
+non terminal ArrayList<Parameter> open_cc, open_head, open_body, open_title, open_link, open_spam, open_input, open_textarea, open_select, open_option, open_div, open_img, open_br, open_button, open_h1, open_p, open_scripting;
+non terminal close_cc, close_head, close_body, close_title, close_link, close_spam, close_input, close_textarea, close_select, close_option, close_div, close_img, close_button, close_h1, close_p, close_scripting;
+non terminal Label c_head, c_body, c_title, c_link, c_spam, c_input, c_textarea, c_select, c_option, c_div, c_img, c_br, c_button, c_h1, c_p, c_scripting;
+non terminal ArrayList<Object> head_labels, c_cc_body, body_labels;
+non terminal Object body_label;
 
 non terminal ArrayList<Parameter> parameters_opt, parameters;
 non terminal Parameter parameter;
 non terminal Parameter href, background, color, font_size, font_family, text_align, type, id, name, cols, rows, clase, src, width, height, alt, onclick;
 
-
 non terminal listIds;
-
 non terminal variable_id;
-non terminal id;
 
 non terminal variable_declarators;
 non terminal variable_declarator;
@@ -124,6 +128,8 @@ non terminal method_declarator;
 non terminal method_block;
 non terminal init_block, end_block;
 non terminal block;
+non terminal block_stmt;
+non terminal block_opt;
 non terminal body_block_opt;
 non terminal body_block;
 non terminal body_stmt;
@@ -133,9 +139,7 @@ non terminal function_call_stmt;
 non terminal function_call_return;
 non terminal param, params;
 non terminal if_stmt;
-non terminal else_opt;
 non terminal else_stmt;
-non terminal else_if_opt;
 non terminal else_if_stmts;
 non terminal else_if_stmt;
 non terminal for_stmt;
@@ -152,31 +156,38 @@ non terminal multiplicative_expression;
 non terminal unary_expression;
 non terminal value_literal;
 non terminal String string_literal;
-non terminal char_literal;
-non terminal simple_string;
-non terminal getElementById;
+non terminal String char_literal;
+non terminal String simple_string;
+
+non terminal String text;
+non terminal String string_text;
+
+
 
 start with s;
 
-s ::= cc;
+s ::= cc:c
+    {:
+    label = c;
+    :};
 /* Open labels */
-open_cc         ::= LT C_CC parameters_opt GT;
-open_head       ::= LT C_HEAD GT;
-open_body       ::= LT C_BODY GT;
-open_title      ::= LT C_TITLE GT;
-open_link       ::= LT C_LINK parameters_opt GT;
-open_spam       ::= LT C_SPAM parameters_opt GT;
-open_input      ::= LT C_INPUT parameters_opt GT;
-open_textarea   ::= C_TEXTAREA parameters_opt C_CC GT;
-open_select     ::= LT C_SELECT parameters_opt GT;
-open_option     ::= LT C_OPTION parameters_opt GT;
-open_div        ::= LT C_DIV parameters_opt GT;
-open_img        ::= LT C_IMG parameters_opt GT;
-open_br         ::= LT C_BR GT;
-open_button     ::= LT C_BUTTON parameters_opt GT;
-open_h1         ::= LT C_H1 parameters_opt GT;
-open_p          ::= LT C_P parameters_opt GT;
-open_scripting  ::= LT C_SCRIPTING GT;
+open_cc         ::= LT C_CC parameters_opt:p GT             {: RESULT = p; :};
+open_head       ::= LT C_HEAD GT                            {: RESULT = new ArrayList<>(); :};
+open_body       ::= LT C_BODY parameters_opt:p GT           {: RESULT = p; :};
+open_title      ::= LT C_TITLE GT                           {: RESULT = new ArrayList<>(); :};
+open_link       ::= LT C_LINK parameters_opt:p GT           {: RESULT = p; :};
+open_spam       ::= LT C_SPAM parameters_opt:p GT           {: RESULT = p; :};
+open_input      ::= LT C_INPUT parameters_opt:p GT          {: RESULT = p; :};
+open_textarea   ::= LT C_TEXTAREA parameters_opt:p C_CC GT  {: RESULT = p; :};
+open_select     ::= LT C_SELECT parameters_opt:p GT         {: RESULT = p; :};
+open_option     ::= LT C_OPTION parameters_opt:p GT         {: RESULT = p; :};
+open_div        ::= LT C_DIV parameters_opt:p GT            {: RESULT = p; :};
+open_img        ::= LT C_IMG parameters_opt:p GT            {: RESULT = p; :};
+open_br         ::= LT C_BR GT                              {: RESULT = new ArrayList<>(); :};
+open_button     ::= LT C_BUTTON parameters_opt:p GT         {: RESULT = p; :};
+open_h1         ::= LT C_H1 parameters_opt:p GT             {: RESULT = p; :};
+open_p          ::= LT C_P parameters_opt:p GT              {: RESULT = p; :};
+open_scripting  ::= LT C_SCRIPTING GT                       {: RESULT = new ArrayList<>(); :};
 /* Close labels */
 close_cc        ::= LT SLASH C_CC GT;
 close_head      ::= LT SLASH C_HEAD GT;
@@ -190,68 +201,246 @@ close_select    ::= LT SLASH C_SELECT GT;
 close_option    ::= LT SLASH C_OPTION GT;
 close_div       ::= LT SLASH C_DIV GT;
 close_img       ::= LT SLASH C_IMG GT;
-close_br        ::= LT SLASH C_BR GT;
 close_button    ::= LT SLASH C_BUTTON GT;
 close_h1        ::= LT SLASH C_H1 GT;
 close_p         ::= LT SLASH C_P GT;
 close_scripting ::= LT SLASH C_SCRIPTING GT;
 /* Labels */
-cc ::= open_cc c_cc_body close_cc;
+cc ::= open_cc:p c_cc_body:l close_cc
+        {:
+        RESULT = new Label(pleft, pright, Label.HTML, p, l);
+        :}
+        ;
 
-c_cc_body ::= c_head c_body;
+c_cc_body ::= c_head:h c_body:b
+            {:
+            var labels = new ArrayList<Object>();
+            labels.add(h);
+            labels.add(b);
+            RESULT = labels;
+            :}
+            ;
 
-c_head ::= open_head head_labels close_head
-            |open_head close_head
+c_head ::= open_head:p head_labels:l close_head
+            {:
+            RESULT = new Label(pleft, pright, Label.HEAD, l);
+            :}
+            |open_head:p close_head
+            {:
+            RESULT = new Label(pleft, pright, Label.HEAD);
+            :}
             ;
 
 
-c_title ::= open_title close_title;
-c_link ::= open_link close_link;
-
-c_head_body::=
-                ;
-
-head_labels ::= c_title c_link
-                | c_link c_title
-                ;
-
-
-body_labels ::= body_label
-            | body_labels body_label
+c_title ::= open_title:p string_text:t close_title
+            {:
+            var text = new ArrayList<Object>();
+            text.add(t);
+            RESULT = new Label(pleft, pright, Label.TITLE, text);
+            :}
+            ;
+c_link ::= open_link:p close_link
+            {:
+            RESULT = new Label(pleft, pright, Label.LINK, p, new ArrayList<>());
+            :}
             ;
 
-body_label ::= c_spam
-                | c_input
-                | c_textarea
-                | c_select
-                | c_option
-                | c_div
-                | c_img
-                | c_br
-                | c_button
-                | c_h1
-                | c_p
-                | c_scripting
-                |
+head_labels ::= c_title:t c_link:l
+                {:
+                var labels = new ArrayList<Object>();
+                labels.add(t);
+                labels.add(l);
+                RESULT = labels;
+                :}
+                | c_link:l c_title:t
+                {:
+                var labels = new ArrayList<Object>();
+                labels.add(l);
+                labels.add(t);
+                RESULT = labels;
+                :}
                 ;
 
 c_body ::= open_body:p body_labels:l close_body
         {:
-        RESULT = new Label(pleft, pright, Label.BODY, p, l);
+        RESULT = new Label(pleft, pright, Label.BODY, l);
+        :}
+        | open_body:p close_body
+        {:
+        RESULT = new Label(pleft, pright, Label.BODY);
         :}
         ;
-c_spam ::= open_spam body_labels close_spam;
-c_input ::= open_input body_labels close_input;
-c_textarea ::= open_textarea body_labels close_textarea;
-c_select ::= open_select body_labels close_select;
-c_option ::= open_option body_labels close_option;
-c_div ::= open_div body_labels close_div;
-c_img ::= open_img body_labels close_img;
-c_br ::= open_br body_labels close_br;
-c_button ::= open_button body_labels close_button;
-c_h1 ::= open_h1 body_labels close_h1;
-c_p ::= open_p body_labels close_p;
-c_scripting ::= open_scripting close_scripting;
+c_spam ::= open_spam:p body_labels:l close_spam
+        {:
+        RESULT = new Label(pleft, pright, Label.SPAN, p, l);
+        :}
+        | open_spam:p close_spam
+        {:
+        RESULT = new Label(pleft, pright, Label.SPAN, p, new ArrayList<>());
+        :}
+        ;
+c_input ::= open_input:p body_labels:l close_input
+        {:
+        RESULT = new Label(pleft, pright, Label.INPUT, p, l);
+        :}
+        | open_input:p close_input
+        {:
+        RESULT = new Label(pleft, pright, Label.INPUT, p, new ArrayList<>());
+        :}
+        ;
+c_textarea ::= open_textarea:p body_labels:l close_textarea
+        {:
+        RESULT = new Label(pleft, pright, Label.TEXTAREA, p, l);
+        :}
+        | open_textarea:p close_textarea
+        {:
+        RESULT = new Label(pleft, pright, Label.TEXTAREA, p, new ArrayList<>());
+        :}
+        ;
+c_select ::= open_select:p body_labels:l close_select
+        {:
+        RESULT = new Label(pleft, pright, Label.SELECT, p, l);
+        :}
+        | open_select:p close_select
+        {:
+        RESULT = new Label(pleft, pright, Label.SELECT, p, new ArrayList<>());
+        :}
+        ;
+c_option ::= open_option:p body_labels:l close_option
+        {:
+        RESULT = new Label(pleft, pright, Label.OPTION, p, l);
+        :}
+        | open_option:p close_option
+        {:
+        RESULT = new Label(pleft, pright, Label.OPTION, p, new ArrayList<>());
+        :}
+        ;
+c_div ::= open_div:p body_labels:l close_div
+        {:
+        RESULT = new Label(pleft, pright, Label.DIV, p, l);
+        :}
+        | open_div:p close_div
+        {:
+        RESULT = new Label(pleft, pright, Label.DIV, p, new ArrayList<>());
+        :}
+        ;
+c_img ::= open_img:p body_labels:l close_img
+        {:
+        RESULT = new Label(pleft, pright, Label.IMG, p, l);
+        :}
+        | open_img:p close_img
+        {:
+        RESULT = new Label(pleft, pright, Label.IMG, p, new ArrayList<>());
+        :}
+        ;
+c_br ::= open_br:p
+        {:
+        RESULT = new Label(pleft, pright, Label.BR);
+        :}
+        ;
+c_button ::= open_button:p body_labels:l close_button
+        {:
+        RESULT = new Label(pleft, pright, Label.BUTTON, p, l);
+        :}
+        | open_button:p close_button
+        {:
+        RESULT = new Label(pleft, pright, Label.BUTTON, p, new ArrayList<>());
+        :}
+        ;
+c_h1 ::= open_h1:p body_labels:l close_h1
+        {:
+        RESULT = new Label(pleft, pright, Label.H1, p, l);
+        :}
+        | open_h1:p close_h1
+        {:
+        RESULT = new Label(pleft, pright, Label.H1, p, new ArrayList<>());
+        :}
+        ;
+c_p ::= open_p:p body_labels:l close_p
+        {:
+        RESULT = new Label(pleft, pright, Label.P, p, l);
+        :}
+        | open_p:p close_p
+        {:
+        RESULT = new Label(pleft, pright, Label.P, p, new ArrayList<>());
+        :}
+        ;
+c_scripting ::= open_scripting body_block close_scripting
+        {:
+        //RESULT = new Label(pleft, pright, Label.SCRIPTING, p, l);
+        :}
+        | open_scripting close_scripting
+        ;
+
+
+body_labels ::= body_label:l
+            {:
+            var labels = new ArrayList<Object>();
+            labels.add(l);
+            RESULT = labels;
+            :}
+            | body_labels:ls body_label:l
+            {:
+            ls.add(l);
+            RESULT = ls;
+            :}
+            ;
+
+body_label ::= c_spam:l
+                {:
+                RESULT = l;
+                :}
+                | c_input:l
+                 {:
+                 RESULT = l;
+                 :}
+                | c_textarea:l
+                {:
+                RESULT = l;
+                :}
+                | c_select:l
+                {:
+                RESULT = l;
+                :}
+                | c_option:l
+                {:
+                RESULT = l;
+                :}
+                | c_div:l
+                {:
+                RESULT = l;
+                :}
+                | c_img:l
+                {:
+                RESULT = l;
+                :}
+                | c_br:l
+                {:
+                RESULT = l;
+                :}
+                | c_button:l
+                {:
+                RESULT = l;
+                :}
+                | c_h1:l
+                {:
+                RESULT = l;
+                :}
+                | c_p:l
+                {:
+                RESULT = l;
+                :}
+                | c_scripting:l
+                {:
+                RESULT = l;
+                :}
+                | text:t
+                {:
+                RESULT = t;
+                :}
+                | error
+                ;
+
 
 
 parameters_opt ::=
@@ -266,7 +455,7 @@ parameters_opt ::=
 
 parameters ::= parameter:p
             {:
-            var parameters = new ArrayList<>();
+            var parameters = new ArrayList<Parameter>();
             parameters.add(p);
             RESULT = parameters;
             :}
@@ -414,7 +603,8 @@ onclick ::= LBRACKET ONCLICK EQUAL string_literal:s RBRACKET
 /* SCRIPTING LABEL BODY */
 
 
-variable_declarators ::= variable_type variable_declarator SEMICOLON
+variable_declarators ::= variable_type GLOBAL variable_declarator
+                        | variable_type variable_declarator
                         ;
 
 variable_declarator ::= variable_id
@@ -438,6 +628,7 @@ variable_type ::= INTEGER
                 ;
 
 method_declarator ::= FUNCTION_ID LPAREN RPAREN method_block
+                    | ON_LOAD LPAREN RPAREN method_block
                     ;
 
 method_block ::= LBRACKET body_block_opt RBRACKET
@@ -451,28 +642,30 @@ body_block ::= body_stmt
                 | body_block body_stmt
                 ;
 
-body_stmt ::= variable_declarators
-            | variable_assignment
-            | function_call_stmt
+body_stmt ::= variable_declarators SEMICOLON
+            | variable_assignment SEMICOLON
+            | method_declarator
+            | function_call_stmt SEMICOLON
             | if_stmt
             | for_stmt
             | while_stmt
+            | error
             ;
 
-function_call_stmt ::= ALERT_INFO LPAREN expression RPAREN SEMICOLON
-                    | EXIT LPAREN RPAREN SEMICOLON
-                    | REDIRECT LPAREN RPAREN SEMICOLON
-                    | INSERT LPAREN params RPAREN SEMICOLON
+function_call_stmt ::= ALERT_INFO LPAREN expression RPAREN
+                    | EXIT LPAREN RPAREN
+                    | REDIRECT LPAREN RPAREN
+                    | INSERT LPAREN params RPAREN
                     ;
 
-function_call_return ::= ASC LPAREN variable_id RPAREN SEMICOLON
-                        | DESC LPAREN variable_id RPAREN SEMICOLON
-                        | LETPAR_NUM LPAREN variable_id RPAREN SEMICOLON
-                        | LETIMPAR_NUM LPAREN variable_id RPAREN SEMICOLON
-                        | REVERSE LPAREN variable_id RPAREN SEMICOLON
-                        | CARACTER_ALEATORIO LPAREN RPAREN SEMICOLON
-                        | NUM_ALEATORIO LPAREN RPAREN SEMICOLON
-                        | GET_ELEMENT_BY_ID LPAREN simple_string RPAREN SEMICOLON
+function_call_return ::= ASC LPAREN variable_id RPAREN
+                        | DESC LPAREN variable_id RPAREN
+                        | LETPAR_NUM LPAREN variable_id RPAREN
+                        | LETIMPAR_NUM LPAREN variable_id RPAREN
+                        | REVERSE LPAREN variable_id RPAREN
+                        | CARACTER_ALEATORIO LPAREN RPAREN
+                        | NUM_ALEATORIO LPAREN RPAREN
+                        | GET_ELEMENT_BY_ID LPAREN simple_string RPAREN
                         ;
 
 params ::= param
@@ -493,27 +686,27 @@ block_opt ::= init_block body_block_opt end_block
         ;
 
 block ::= block_opt
-        | body_stmt
+        | block_stmt
         ;
 
-
-if_stmt ::= IF LPAREN expression RPAREN THEN block else_if_opt else_opt
+block_stmt ::= variable_declarators SEMICOLON
+            | variable_assignment SEMICOLON
+            | function_call_stmt SEMICOLON
             ;
 
-else_if_opt ::=
-            | else_if_stmts
+if_stmt ::= IF LPAREN expression RPAREN THEN block
+            | IF LPAREN expression RPAREN THEN block else_if_stmts
+            | IF LPAREN expression RPAREN THEN block else_stmt
+            | IF LPAREN expression RPAREN THEN block else_if_stmts else_stmt
             ;
 
-else_if_stmts ::= else_if_stmt
+
+else_if_stmts ::=  else_if_stmt
                 | else_if_stmts else_if_stmt
                 ;
 
 else_if_stmt ::= ELSE IF LPAREN expression RPAREN THEN block
                 ;
-
-else_opt ::=
-            | else_stmt
-            ;
 
 else_stmt ::= ELSE block
             ;
@@ -521,7 +714,7 @@ else_stmt ::= ELSE block
 for_stmt ::= REPEAT LPAREN init_for RPAREN HUNTIL LPAREN expression RPAREN block
             ;
 
-init_for ::= variable_declarator
+init_for ::= variable_declarators
             | variable_assignment
             ;
 
@@ -558,7 +751,7 @@ additive_expression ::= multiplicative_expression
 
 multiplicative_expression ::= unary_expression
                             | multiplicative_expression TIMES unary_expression
-                            | multiplicative_expression DIVISION unary_expression
+                            | multiplicative_expression SLASH unary_expression
                             ;
 
 unary_expression ::= value_literal
@@ -582,3 +775,41 @@ char_literal ::= CHAR_LITERAL:c {: RESULT = c.replaceAll("'", ""); :}
                 ;
 
 simple_string ::= SIMPLE_STRING:s {: RESULT = s.replaceAll("'", ""); :};
+
+text ::= TEXT:t             {: RESULT = t; :}
+        | IDENTIFIER:t      {: RESULT = t; :}
+        | STRING_LITERAL:t  {: RESULT = t; :}
+        | CHAR_LITERAL:t    {: RESULT = t; :}
+        | SIMPLE_STRING:t   {: RESULT = t; :}
+        | NUMBER:t          {: RESULT = t; :}
+        | EQUAL:t           {: RESULT = t; :}
+        | FUNCTION_ID:t     {: RESULT = t; :}
+        | PLUS:t            {: RESULT = t; :}
+        | MINUS:t           {: RESULT = t; :}
+        | TIMES:t           {: RESULT = t; :}
+        | SLASH:t           {: RESULT = t; :}
+        | LPAREN:t          {: RESULT = t; :}
+        | RPAREN:t          {: RESULT = t; :}
+        | COLON:t           {: RESULT = t; :}
+        | SEMICOLON:t       {: RESULT = t; :}
+        | COMMA:t           {: RESULT = t; :}
+        | VERTICAL_BAR:t    {: RESULT = t; :}
+        | REL_OP:t          {: RESULT = t; :}
+        | OR:t              {: RESULT = t; :}
+        | AND:t             {: RESULT = t; :}
+        | NOT:t             {: RESULT = t; :}
+        | LBRACKET:t        {: RESULT = t; :}
+        | RBRACKET:t        {: RESULT = t; :}
+        | LBRACE:t          {: RESULT = t; :}
+        | RBRACE:t          {: RESULT = t; :}
+        ;
+
+string_text ::= text:t
+                {:
+                RESULT = t;
+                :}
+                | string_text:s text:t
+                {:
+                RESULT = s + " " + t;
+                :}
+                ;
