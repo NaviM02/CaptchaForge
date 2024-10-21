@@ -353,7 +353,7 @@ public class CCLexer implements java_cup.runtime.Scanner {
 
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\123\0\123\0\246\0\371\0\u014c\0\u019f\0\u01f2"+
-    "\0\123\0\123\0\123\0\123\0\123\0\u0245\0\u0245\0\123"+
+    "\0\123\0\123\0\123\0\123\0\123\0\123\0\u0245\0\123"+
     "\0\u0298\0\u02eb\0\123\0\123\0\u033e\0\u0391\0\u0391\0\u03e4"+
     "\0\u0437\0\u048a\0\u04dd\0\u0530\0\u0583\0\u05d6\0\u0629\0\u067c"+
     "\0\u06cf\0\u0722\0\u0775\0\u07c8\0\u081b\0\u086e\0\123\0\123"+
@@ -1042,7 +1042,7 @@ public class CCLexer implements java_cup.runtime.Scanner {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\2\11\5\1\5\11\2\1\1\11\2\1\2\11"+
+    "\1\0\2\11\5\1\6\11\1\1\1\11\2\1\2\11"+
     "\22\1\2\11\20\1\1\11\1\1\1\11\1\1\1\11"+
     "\1\0\2\11\1\0\1\1\1\0\53\1\1\0\1\11"+
     "\1\0\64\1\1\11\1\0\70\1\1\0\52\1\1\0"+

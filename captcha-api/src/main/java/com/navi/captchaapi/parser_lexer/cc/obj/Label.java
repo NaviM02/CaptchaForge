@@ -24,7 +24,7 @@ public class Label {
     public static final int P = 16;
     public static final int SCRIPT = 17;
 
-    public static final String[] LABELS = {"HTML", "HEAD", "TITLE", "LINK", "BODY", "SPAM", "INPUT",
+    public static final String[] LABELS = {"HTML", "HEAD", "TITLE", "LINK", "BODY", "SPAN", "INPUT",
         "TEXTAREA", "SELECT", "OPTION", "DIV", "IMG", "BR", "BUTTON", "H1", "P", "SCRIPT"};
 
     private Location loc;
@@ -54,15 +54,21 @@ public class Label {
         this.content = content;
     }
 
-    public String toHtml(){
+    public String toHtml(String script){
+        boolean done = false;
+        parameters.forEach(Parameter::getParam);
         StringBuilder html = new StringBuilder();
         html.append("<").append(LABELS[type-1].toLowerCase()).append(">\n");
         for(Object body: content){
-            if(body instanceof String){
-                html.append((String) body).append(" ");
+            if(body instanceof String str){
+                html.append(str).append(" ");
             }
-            else if(body instanceof Label){
-                html.append(((Label) body).toHtml());
+            else if(body instanceof Label label){
+                if(label.getType() == Label.TITLE && !done){
+                    html.append(script).append("\n");
+                    done = true;
+                }
+                html.append((label).toHtml(script));
             }
         }
         html.append("</").append(LABELS[type-1].toLowerCase()).append(">\n");

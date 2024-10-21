@@ -4,10 +4,12 @@ import java.util.*;
 import java.text.DecimalFormat;
 import com.navi.captchaapi.parser_lexer.*;
 import com.navi.captchaapi.parser_lexer.cc.obj.*;
+import com.navi.captchaapi.parser_lexer.cc.obj.node.*;
 
 parser code
 {:
     public Label label = new Label();
+    public Program program = new Program(new Location(0,0), new ArrayList<>());
     public CCParser(CCLexer lex) {
         super(lex);
         //resetBooleans();
@@ -90,8 +92,6 @@ terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM, C_INPUT, C_TEXTAREA, C_S
         HREF, BACKGROUND, COLOR, FONT_SIZE, FONT_FAMILY, TEXT_ALIGN, TYPE, ID, NAME, COLS, ROWS,
         CLASS, SRC, WIDTH, HEIGHT, ALT, ONCLICK,
         INTEGER, DECIMAL, BOOLEAN, CHAR, STRING,
-        ASC, DESC, LETPAR_NUM, LETIMPAR_NUM, REVERSE, CARACTER_ALEATORIO, NUM_ALEATORIO, ALERT_INFO,
-        EXIT, REDIRECT, INSERT, ON_LOAD, GET_ELEMENT_BY_ID, GLOBAL,
         INIT, END, IF, THEN, ELSE, REPEAT, HUNTIL, WHILE, THENWHILE, TRUE, FALSE,
         LT, GT
 
@@ -99,6 +99,9 @@ terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM, C_INPUT, C_TEXTAREA, C_S
 
 terminal String STRING_LITERAL, SIMPLE_STRING, NUMBER, CHAR_LITERAL,
                 EQUAL, IDENTIFIER, TEXT, FUNCTION_ID,
+                INSERT, ON_LOAD, GET_ELEMENT_BY_ID, GLOBAL,
+                ASC, DESC, LETPAR_NUM, LETIMPAR_NUM, REVERSE, CARACTER_ALEATORIO, NUM_ALEATORIO,
+                ALERT_INFO, EXIT, REDIRECT,
                 PLUS, MINUS, TIMES, SLASH, LPAREN, RPAREN,
                 COLON, SEMICOLON, COMMA, VERTICAL_BAR,
                 REL_OP, OR, AND, NOT, LBRACKET, RBRACKET, LBRACE, RBRACE
@@ -116,45 +119,48 @@ non terminal ArrayList<Parameter> parameters_opt, parameters;
 non terminal Parameter parameter;
 non terminal Parameter href, background, color, font_size, font_family, text_align, type, id, name, cols, rows, clase, src, width, height, alt, onclick;
 
-non terminal listIds;
-non terminal variable_id;
+non terminal List<Identifier> listIds;
+non terminal Identifier variable_id;
 
-non terminal variable_declarators;
-non terminal variable_declarator;
-non terminal variable_assignment;
-non terminal variable_type;
+non terminal List<FunctionDeclaration> global_stmt_opt;
+non terminal List<FunctionDeclaration> global_stmt;
+non terminal List<VariableDeclarator> variable_declarators;
+non terminal List<VariableDeclarator> variable_declarator;
+non terminal List<Assignment> variable_assignment_declarator;
+non terminal Assignment variable_assignment;
+non terminal Type variable_type;
 
-non terminal method_declarator;
-non terminal method_block;
+non terminal FunctionDeclaration method_declarator;
+non terminal List<Node> method_block;
 non terminal init_block, end_block;
-non terminal block;
-non terminal block_stmt;
-non terminal block_opt;
-non terminal body_block_opt;
-non terminal body_block;
-non terminal body_stmt;
+non terminal List<Node> block;
+non terminal List<Node> block_stmt;
+non terminal List<Node> block_opt;
+non terminal List<Node> body_block_opt;
+non terminal List<Node> body_block;
+non terminal List<Node> body_stmt;
 
 
-non terminal function_call_stmt;
-non terminal function_call_return;
-non terminal param, params;
-non terminal if_stmt;
-non terminal else_stmt;
-non terminal else_if_stmts;
-non terminal else_if_stmt;
-non terminal for_stmt;
-non terminal init_for;
-non terminal while_stmt;
+non terminal CallFunction function_call_stmt;
+non terminal CallFunction function_call_return;
+non terminal List<Expr> param, params;
+non terminal IfStmt if_stmt;
+non terminal List<Node> else_stmt;
+non terminal List<IfStmt> else_if_stmts;
+non terminal IfStmt else_if_stmt;
+non terminal ForStmt for_stmt;
+non terminal VariableDeclarator init_for;
+non terminal WhileStmt while_stmt;
 
-non terminal expression;
-non terminal conditional_expression;
-non terminal conditional_or_expression;
-non terminal conditional_and_expression;
-non terminal relational_expression;
-non terminal additive_expression;
-non terminal multiplicative_expression;
-non terminal unary_expression;
-non terminal value_literal;
+non terminal Expr expression;
+non terminal Expr conditional_expression;
+non terminal Expr conditional_or_expression;
+non terminal Expr conditional_and_expression;
+non terminal Expr relational_expression;
+non terminal Expr additive_expression;
+non terminal Expr multiplicative_expression;
+non terminal UnaryExpression unary_expression;
+non terminal UnaryExpression value_literal;
 non terminal String string_literal;
 non terminal String char_literal;
 non terminal String simple_string;
@@ -365,11 +371,10 @@ c_p ::= open_p:p body_labels:l close_p
         RESULT = new Label(pleft, pright, Label.P, p, new ArrayList<>());
         :}
         ;
-c_scripting ::= open_scripting body_block close_scripting
+c_scripting ::= open_scripting global_stmt_opt close_scripting
         {:
         //RESULT = new Label(pleft, pright, Label.SCRIPTING, p, l);
         :}
-        | open_scripting close_scripting
         ;
 
 
@@ -602,78 +607,170 @@ onclick ::= LBRACKET ONCLICK EQUAL string_literal:s RBRACKET
 
 /* SCRIPTING LABEL BODY */
 
+global_stmt_opt ::=
+                | global_stmt:g
+                {:
+                program.getBody().addAll(g);
+                RESULT = g;
+                :}
+                ;
 
-variable_declarators ::= variable_type GLOBAL variable_declarator
-                        | variable_type variable_declarator
+global_stmt ::= method_declarator:f
+                {:RESULT = new ArrayList<>(Arrays.asList(f)); :}
+                | global_stmt:g method_declarator:f
+                {:
+                g.add(f);
+                RESULT = g;
+                :}
+                ;
+
+variable_declarators ::= variable_type:t GLOBAL variable_declarator:vs
+                        {:
+                        for(VariableDeclarator v: vs){
+                            v.setType(t);
+                            v.setText("let "+v.getText());
+                        }
+                        RESULT = vs;
+                        :}
+                        | variable_type:t variable_declarator:vs
+                        {:
+                        for(VariableDeclarator v: vs){
+                            v.setType(t);
+                            v.setText("let "+v.getText());
+                        }
+                        RESULT = vs;
+                        :}
                         ;
 
-variable_declarator ::= variable_id
-                    | variable_assignment
+variable_declarator ::= variable_id:s
+                    {:RESULT = new ArrayList<>(Arrays.asList(new VariableDeclarator(new Location(sleft, sright), s, null))); :}
+                    | variable_assignment_declarator:s
+                    {:
+                    ArrayList<VariableDeclarator> v = new ArrayList<>();
+                    for(Assignment a: s){
+                        v.add(new VariableDeclarator(a.getLoc(), a.getId(), a.getExpression()));
+                    }
+                    RESULT = v;
+                    :}
                     ;
 
-listIds ::= variable_id
-            | listIds COMMA variable_id
+listIds ::= variable_id:i
+            {:RESULT = new ArrayList<>(Arrays.asList(i)); :}
+            | listIds:ids COMMA variable_id:i
+            {:
+            ids.add(i);
+            RESULT = ids;
+            :}
             ;
 
-variable_id ::= IDENTIFIER;
+variable_id ::= IDENTIFIER:i {:RESULT = new Identifier(new Location(ileft, iright), i); :};
 
-variable_assignment ::= listIds EQUAL expression
+variable_assignment_declarator ::= listIds:i EQUAL expression:e
+                               {:
+                               ArrayList<Assignment> as = new ArrayList<>();
+                               for(Identifier id: i){
+                                   as.add(new Assignment(id.getLoc(), id, e));
+                               }
+                               RESULT = as;
+                               :}
+                               ;
+
+variable_assignment ::= variable_id:i EQUAL expression:e
+                    {:RESULT = new Assignment(new Location(ileft, iright), i, e); :}
                     ;
 
-variable_type ::= INTEGER
-                | STRING
-                | DECIMAL
-                | CHAR
-                | BOOLEAN
+variable_type ::= INTEGER   {:RESULT = Type.INT;:}
+                | STRING    {:RESULT = Type.STRING;:}
+                | DECIMAL   {:RESULT = Type.DECIMAL;:}
+                | CHAR      {:RESULT = Type.CHAR;:}
+                | BOOLEAN   {:RESULT = Type.BOOLEAN;:}
                 ;
 
-method_declarator ::= FUNCTION_ID LPAREN RPAREN method_block
-                    | ON_LOAD LPAREN RPAREN method_block
+method_declarator ::= FUNCTION_ID:f LPAREN RPAREN method_block:b
+                    {:RESULT = new FunctionDeclaration(new Location(fleft, fright), f, new ArrayList<>(), Type.VOID, b); :}
+                    | ON_LOAD:f LPAREN RPAREN method_block:b
+                    {:RESULT = new FunctionDeclaration(new Location(fleft, fright), f, new ArrayList<>(), Type.VOID, b); :}
                     ;
 
-method_block ::= LBRACKET body_block_opt RBRACKET
+method_block ::= LBRACKET body_block_opt:b RBRACKET
+                {:RESULT = b; :}
                 ;
 
-body_block_opt ::=
-                | body_block
+body_block_opt ::= {:RESULT = new ArrayList<>(); :}
+                | body_block:b
+                {:RESULT = b; :}
                 ;
 
-body_block ::= body_stmt
-                | body_block body_stmt
+body_block ::= body_stmt:b
+                {:RESULT = b; :}
+                | body_block:bb body_stmt:b
+                {:
+                bb.addAll(b);
+                RESULT = bb; :}
                 ;
 
-body_stmt ::= variable_declarators SEMICOLON
-            | variable_assignment SEMICOLON
-            | method_declarator
-            | function_call_stmt SEMICOLON
-            | if_stmt
-            | for_stmt
-            | while_stmt
+body_stmt ::= variable_declarators:b SEMICOLON
+            {:
+            b.forEach(v->v.setText(v.getText()+";"));
+            List<Node> c = new ArrayList<>();
+            c.addAll(b);
+            RESULT = c;  :}
+            | variable_assignment:b SEMICOLON
+            {: b.setText(b.getText()+";");
+            RESULT = new ArrayList<>(Arrays.asList(b)); :}
+            | function_call_stmt:b SEMICOLON
+            {: b.setText(b.getText()+";");
+            RESULT = new ArrayList<>(Arrays.asList(b)); :}
+            | if_stmt:b
+            {:RESULT = new ArrayList<>(Arrays.asList(b)); :}
+            | for_stmt:b
+            {:RESULT = new ArrayList<>(Arrays.asList(b)); :}
+            | while_stmt:b
+            {:RESULT = new ArrayList<>(Arrays.asList(b)); :}
             | error
             ;
 
-function_call_stmt ::= ALERT_INFO LPAREN expression RPAREN
-                    | EXIT LPAREN RPAREN
-                    | REDIRECT LPAREN RPAREN
-                    | INSERT LPAREN params RPAREN
+function_call_stmt ::= ALERT_INFO:f LPAREN expression:p RPAREN
+                    {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>(Arrays.asList(p)));:}
+                    | EXIT:f LPAREN RPAREN
+                    {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>());:}
+                    | REDIRECT:f LPAREN RPAREN
+                    {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>());:}
+                    | INSERT:f LPAREN params:p RPAREN
+                    {:RESULT = new CallFunction(new Location(fleft, fright), f, p);:}
                     ;
 
-function_call_return ::= ASC LPAREN variable_id RPAREN
-                        | DESC LPAREN variable_id RPAREN
-                        | LETPAR_NUM LPAREN variable_id RPAREN
-                        | LETIMPAR_NUM LPAREN variable_id RPAREN
-                        | REVERSE LPAREN variable_id RPAREN
-                        | CARACTER_ALEATORIO LPAREN RPAREN
-                        | NUM_ALEATORIO LPAREN RPAREN
-                        | GET_ELEMENT_BY_ID LPAREN simple_string RPAREN
+function_call_return ::= ASC:f LPAREN expression:p RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>(Arrays.asList(p)));:}
+                        | DESC:f LPAREN expression:p RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>(Arrays.asList(p)));:}
+                        | LETPAR_NUM:f LPAREN expression:p RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>(Arrays.asList(p)));:}
+                        | LETIMPAR_NUM:f LPAREN expression:p RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>(Arrays.asList(p)));:}
+                        | REVERSE LPAREN:f expression:p RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>(Arrays.asList(p)));:}
+                        | CARACTER_ALEATORIO:f LPAREN RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>());:}
+                        | NUM_ALEATORIO:f LPAREN RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>());:}
+                        | GET_ELEMENT_BY_ID:f LPAREN param:p RPAREN
+                        {:RESULT = new CallFunction(new Location(fleft, fright), f, p);:}
                         ;
 
-params ::= param
-        | params COMMA param
+
+params ::= param:p
+        {:RESULT = p; :}
+        | params:ps COMMA param:p
+        {:
+        ps.addAll(p);
+        RESULT = ps;:}
         ;
 
-param ::= variable_id
-        | simple_string
+param ::= variable_id:v
+        {:RESULT = new ArrayList<>(Arrays.asList(new UnaryExpression(new Location(vleft, vright), v.getText(), Type.STRING, null, v))); :}
+        | simple_string:v
+        {:RESULT = new ArrayList<>(Arrays.asList(new UnaryExpression(new Location(vleft, vright), "'"+v+"'", Type.STRING, null, v))); :}
         ;
 
 init_block ::= INIT LBRACE COLON
@@ -682,43 +779,73 @@ init_block ::= INIT LBRACE COLON
 end_block ::= COLON RBRACE END
             ;
 
-block_opt ::= init_block body_block_opt end_block
+block_opt ::= init_block body_block_opt:b end_block
+        {:RESULT = b; :}
         ;
 
-block ::= block_opt
-        | block_stmt
+block ::= block_opt:b
+        {:RESULT = b; :}
+        | block_stmt:b
+        {:RESULT = b; :}
         ;
 
-block_stmt ::= variable_declarators SEMICOLON
-            | variable_assignment SEMICOLON
-            | function_call_stmt SEMICOLON
+block_stmt ::= variable_declarators:v SEMICOLON
+            {:
+            v.forEach(b->b.setText(b.getText()+";"));
+            List<Node> c = new ArrayList<>();
+            c.addAll(v);
+            RESULT = c; :}
+            | variable_assignment:v SEMICOLON
+            {: v.setText(v.getText()+";");
+            RESULT = new ArrayList<>(Arrays.asList(v)); :}
+            | function_call_stmt:v SEMICOLON
+            {: v.setText(v.getText()+";");
+            RESULT = new ArrayList<>(Arrays.asList(v)); :}
             ;
 
-if_stmt ::= IF LPAREN expression RPAREN THEN block
-            | IF LPAREN expression RPAREN THEN block else_if_stmts
-            | IF LPAREN expression RPAREN THEN block else_stmt
-            | IF LPAREN expression RPAREN THEN block else_if_stmts else_stmt
+
+
+
+if_stmt ::= IF:r LPAREN expression:e RPAREN THEN block:b
+            {:RESULT = new IfStmt(new Location(rleft, rright), e, b, new ArrayList<>(), new ArrayList<>()); :}
+            | IF:r LPAREN expression:e RPAREN THEN block:b else_if_stmts:elif
+            {:RESULT = new IfStmt(new Location(rleft, rright), e, b, elif, new ArrayList<>()); :}
+            | IF:r LPAREN expression:e RPAREN THEN block:b else_stmt:els
+            {:RESULT = new IfStmt(new Location(rleft, rright), e, b, new ArrayList<>(), els); :}
+            | IF:r LPAREN expression:e RPAREN THEN block:b else_if_stmts:elif else_stmt:els
+            {:RESULT = new IfStmt(new Location(rleft, rright), e, b, elif, els); :}
             ;
 
 
-else_if_stmts ::=  else_if_stmt
-                | else_if_stmts else_if_stmt
+else_if_stmts ::= else_if_stmt:b
+                {:RESULT = new ArrayList<>(Arrays.asList(b)); :}
+                | else_if_stmts:bs else_if_stmt:b
+                {:
+                bs.add(b);
+                RESULT = bs;
+                :}
                 ;
 
-else_if_stmt ::= ELSE IF LPAREN expression RPAREN THEN block
+else_if_stmt ::= ELSE:r IF LPAREN expression:e RPAREN THEN block:b
+                {:RESULT = new IfStmt(new Location(rleft, rright), e, b); :}
                 ;
 
-else_stmt ::= ELSE block
+else_stmt ::= ELSE block:b
+            {:RESULT = b; :}
             ;
 
-for_stmt ::= REPEAT LPAREN init_for RPAREN HUNTIL LPAREN expression RPAREN block
+for_stmt ::= REPEAT:r LPAREN init_for:i RPAREN HUNTIL LPAREN expression:e RPAREN block:b
+            {:RESULT = new ForStmt(new Location(rleft, rright), b, i, e, "++"); :}
             ;
 
-init_for ::= variable_declarators
-            | variable_assignment
+init_for ::= INTEGER:i variable_id:id EQUAL:e expression:ex
+            {:RESULT = new VariableDeclarator(new Location(ileft, iright), id, ex); :}
+            | variable_id:id EQUAL:e expression:ex
+            {:RESULT = new VariableDeclarator(new Location(idleft, idright), id, ex); :}
             ;
 
-while_stmt ::= WHILE LPAREN expression RPAREN THENWHILE block
+while_stmt ::= WHILE:w LPAREN expression:e RPAREN THENWHILE block:b
+            {:RESULT = new WhileStmt(new Location(wleft, wright), b, e);:}
             ;
 
 
@@ -726,55 +853,92 @@ while_stmt ::= WHILE LPAREN expression RPAREN THENWHILE block
 
 
 
-expression ::= conditional_expression
+expression ::= conditional_expression:v
+            {:RESULT = v; :}
             ;
 
-conditional_expression ::= conditional_or_expression
+conditional_expression ::= conditional_or_expression:v
+                        {:RESULT = v; :}
                         ;
 
-conditional_or_expression ::= conditional_and_expression
-                            | conditional_or_expression OR conditional_and_expression
+conditional_or_expression ::= conditional_and_expression:v
+                            {:RESULT = v; :}
+                            | conditional_or_expression:v1 OR:v2 conditional_and_expression:v3
+                            {:RESULT = new BinaryExpression(new Location(v1left, v1right), Type.BOOLEAN, v1, v2, v3); :}
                             ;
 
-conditional_and_expression ::= relational_expression
-                        | conditional_and_expression AND relational_expression
+conditional_and_expression ::= relational_expression:v
+                        {:RESULT = v; :}
+                        | conditional_and_expression:v1 AND:v2 relational_expression:v3
+                        {:RESULT = new BinaryExpression(new Location(v1left, v1right), Type.BOOLEAN, v1, v2, v3); :}
                         ;
 
-relational_expression ::= additive_expression
-                        | relational_expression REL_OP additive_expression
+relational_expression ::= additive_expression:v
+                        {:RESULT = v; :}
+                        | relational_expression:v1 REL_OP:v2 additive_expression:v3
+                        {:RESULT = new BinaryExpression(new Location(v1left, v1right), Type.BOOLEAN, v1, v2, v3); :}
                         ;
 
-additive_expression ::= multiplicative_expression
-                        | additive_expression PLUS multiplicative_expression
-                        | additive_expression MINUS multiplicative_expression
+additive_expression ::= multiplicative_expression:v
+                        {:RESULT = v; :}
+                        | additive_expression:v1 PLUS:v2 multiplicative_expression:v3
+                        {:RESULT = new BinaryExpression(new Location(v1left, v1right), null, v1, v2, v3); :}
+                        | additive_expression:v1 MINUS:v2 multiplicative_expression:v3
+                        {:RESULT = new BinaryExpression(new Location(v1left, v1right), null, v1, v2, v3); :}
                         ;
 
-multiplicative_expression ::= unary_expression
-                            | multiplicative_expression TIMES unary_expression
-                            | multiplicative_expression SLASH unary_expression
+multiplicative_expression ::= unary_expression:v
+                            {:RESULT = v; :}
+                            | multiplicative_expression:v1 TIMES:v2 unary_expression:v3
+                            {:RESULT = new BinaryExpression(new Location(v1left, v1right), null, v1, v2, v3); :}
+                            | multiplicative_expression:v1 SLASH:v2 unary_expression:v3
+                            {:RESULT = new BinaryExpression(new Location(v1left, v1right), null, v1, v2, v3); :}
                             ;
 
-unary_expression ::= value_literal
-                    | variable_id
-                    | function_call_return
-                    | MINUS unary_expression
-                    | LPAREN expression RPAREN
+unary_expression ::= value_literal:v
+                    {:RESULT = v; :}
+                    | variable_id:v
+                    {:RESULT = new UnaryExpression(new Location(vleft, vright), v.getText(), null, null, v); :}
+                    | function_call_return:v
+                    {:RESULT = new UnaryExpression(new Location(vleft, vright), v.getText(), null, null, v); :}
+                    | MINUS unary_expression:v
+                    {:
+                    v.setOperator("-");
+                    v.setText("-"+v.getText());
+                    RESULT = v;
+                    :}
+                    | LPAREN expression:v RPAREN
+                    {:
+                    v.setText("("+v.getText()+")");
+                    RESULT = (UnaryExpression) v;
+                    :}
                     ;
 
-value_literal ::= string_literal
-                | NUMBER
-                | char_literal
-                | TRUE
-                | FALSE
+value_literal ::= string_literal:v
+                {:RESULT = new UnaryExpression(new Location(vleft, vright), "\""+v+"\"", Type.STRING, null, v);:}
+                | NUMBER:v
+                {:
+                double num = Double.parseDouble(v.toString());
+                Type tp;
+                if(num % 1 != 0) tp = Type.DECIMAL;
+                else tp = Type.INT;
+                RESULT = new UnaryExpression(new Location(vleft, vright), v, tp, null, num);
+                :}
+                | char_literal:v
+                {:RESULT = new UnaryExpression(new Location(vleft, vright), v, Type.CHAR, null, v);:}
+                | TRUE:v
+                {:RESULT = new UnaryExpression(new Location(vleft, vright), "true", Type.BOOLEAN, null, false);:}
+                | FALSE:v
+                {:RESULT = new UnaryExpression(new Location(vleft, vright), "false", Type.BOOLEAN, null, false);:}
                 ;
 
-string_literal ::= STRING_LITERAL:s {: RESULT = s.replaceAll("\"", ""); :}
+string_literal ::= STRING_LITERAL:s {: RESULT = s.replaceAll("\"", "").replaceAll("\n", "\\n"); :}
                 ;
 
 char_literal ::= CHAR_LITERAL:c {: RESULT = c.replaceAll("'", ""); :}
                 ;
 
-simple_string ::= SIMPLE_STRING:s {: RESULT = s.replaceAll("'", ""); :};
+simple_string ::= SIMPLE_STRING:s {: RESULT = s.replaceAll("'", "")/*.replaceAll("\n", "\\\\n")*/; :};
 
 text ::= TEXT:t             {: RESULT = t; :}
         | IDENTIFIER:t      {: RESULT = t; :}

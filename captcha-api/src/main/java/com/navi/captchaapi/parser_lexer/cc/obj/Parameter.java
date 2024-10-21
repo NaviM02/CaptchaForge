@@ -35,5 +35,18 @@ public class Parameter {
         this.loc = new Location(line, col);
         this.type = type;
         this.value = value;
+
+    }
+    public String getParam(){
+        System.out.println(PARAMETERS[type-1] + " = \"" + value + "\"");
+        return PARAMETERS[type-1] + " = \"" + value + "\"";
+    }
+
+    public void defaultParam(){
+        switch (type) {
+            case COLOR -> {
+
+            }
+        }
     }
 }

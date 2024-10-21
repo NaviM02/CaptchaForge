@@ -76,7 +76,8 @@ public class Test {
         ErrorsLP.getErrors().forEach(System.out::println);
 
         if(ErrorsLP.getErrors().isEmpty()){
-            String html = Compile.parser.label.toHtml();
+            String script = "<script>\n" + Compile.parser.program.getScript() + "</script>";
+            String html = Compile.parser.label.toHtml(script);
             System.out.println(html);
         }
     }
