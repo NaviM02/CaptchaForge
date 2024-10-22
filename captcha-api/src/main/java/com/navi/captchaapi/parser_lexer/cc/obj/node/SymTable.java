@@ -48,7 +48,18 @@ public class SymTable {
 
     public boolean addVariable(VariableDeclarator variable) {
         if (isInsertableVar(variable.getId().getName())) {
-            symbolVars.put(variable.getId().getName(), variable);
+            if(variable.isGlobal()){
+                SymTable aux = upperAmbit;
+                var aux2 = symbolVars;
+                while (aux != null){
+                    aux2 = aux.getSymbolVars();
+                    aux = aux.getUpperAmbit();
+                }
+                aux2.put(variable.getId().getName(), variable);
+            }
+            else{
+                symbolVars.put(variable.getId().getName(), variable);
+            }
             return true;
         }
         return false;

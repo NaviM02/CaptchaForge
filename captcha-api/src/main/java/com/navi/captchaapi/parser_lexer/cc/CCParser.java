@@ -1444,6 +1444,7 @@ public class CCParser extends java_cup.runtime.lr_parser {
 
     public Label label = new Label();
     public Program program = new Program(new Location(0,0), new ArrayList<>());
+    public ArrayList<String> staticVariables = new ArrayList<>();
     public CCParser(CCLexer lex) {
         super(lex);
         //resetBooleans();
@@ -3209,7 +3210,9 @@ class CUP$CCParser$actions {
 		
                         for(VariableDeclarator v: vs){
                             v.setType(t);
-                            v.setText("let "+v.getText());
+                            v.setGlobal(true);
+                            staticVariables.add("let "+v.getText());
+                            v.setText("");
                         }
                         RESULT = vs;
                         
@@ -3491,7 +3494,10 @@ class CUP$CCParser$actions {
 		int bright = ((java_cup.runtime.Symbol)CUP$CCParser$stack.elementAt(CUP$CCParser$top-1)).right;
 		List<VariableDeclarator> b = (List<VariableDeclarator>)((java_cup.runtime.Symbol) CUP$CCParser$stack.elementAt(CUP$CCParser$top-1)).value;
 		
-            b.forEach(v->v.setText(v.getText()+";"));
+            b.forEach(v->{
+              if(v.isGlobal()) v.setText("");
+              else v.setText(v.getText()+";");
+            });
             List<Node> c = new ArrayList<>();
             c.addAll(b);
             RESULT = c;  
@@ -3853,7 +3859,10 @@ class CUP$CCParser$actions {
 		int vright = ((java_cup.runtime.Symbol)CUP$CCParser$stack.elementAt(CUP$CCParser$top-1)).right;
 		List<VariableDeclarator> v = (List<VariableDeclarator>)((java_cup.runtime.Symbol) CUP$CCParser$stack.elementAt(CUP$CCParser$top-1)).value;
 		
-            v.forEach(b->b.setText(b.getText()+";"));
+            v.forEach(b->{
+              if(b.isGlobal()) b.setText("");
+              else b.setText(b.getText()+";");
+            });
             List<Node> c = new ArrayList<>();
             c.addAll(v);
             RESULT = c; 
@@ -4483,7 +4492,7 @@ class CUP$CCParser$actions {
 		int sleft = ((java_cup.runtime.Symbol)CUP$CCParser$stack.peek()).left;
 		int sright = ((java_cup.runtime.Symbol)CUP$CCParser$stack.peek()).right;
 		String s = (String)((java_cup.runtime.Symbol) CUP$CCParser$stack.peek()).value;
-		 RESULT = s.replaceAll("'", "").replaceAll("\n", "\\n"); 
+		 RESULT = s.replaceAll("'", "")/*.replaceAll("\n", "\\\\n")*/; 
               CUP$CCParser$result = parser.getSymbolFactory().newSymbol("simple_string",116, ((java_cup.runtime.Symbol)CUP$CCParser$stack.peek()), ((java_cup.runtime.Symbol)CUP$CCParser$stack.peek()), RESULT);
             }
           return CUP$CCParser$result;

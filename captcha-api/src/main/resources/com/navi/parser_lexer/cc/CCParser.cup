@@ -10,6 +10,7 @@ parser code
 {:
     public Label label = new Label();
     public Program program = new Program(new Location(0,0), new ArrayList<>());
+    public ArrayList<String> staticVariables = new ArrayList<>();
     public CCParser(CCLexer lex) {
         super(lex);
         //resetBooleans();
@@ -628,7 +629,9 @@ variable_declarators ::= variable_type:t GLOBAL variable_declarator:vs
                         {:
                         for(VariableDeclarator v: vs){
                             v.setType(t);
-                            v.setText("let "+v.getText());
+                            v.setGlobal(true);
+                            staticVariables.add("let "+v.getText());
+                            v.setText("");
                         }
                         RESULT = vs;
                         :}
@@ -711,7 +714,10 @@ body_block ::= body_stmt:b
 
 body_stmt ::= variable_declarators:b SEMICOLON
             {:
-            b.forEach(v->v.setText(v.getText()+";"));
+            b.forEach(v->{
+              if(v.isGlobal()) v.setText("");
+              else v.setText(v.getText()+";");
+            });
             List<Node> c = new ArrayList<>();
             c.addAll(b);
             RESULT = c;  :}
@@ -791,7 +797,10 @@ block ::= block_opt:b
 
 block_stmt ::= variable_declarators:v SEMICOLON
             {:
-            v.forEach(b->b.setText(b.getText()+";"));
+            v.forEach(b->{
+              if(b.isGlobal()) b.setText("");
+              else b.setText(b.getText()+";");
+            });
             List<Node> c = new ArrayList<>();
             c.addAll(v);
             RESULT = c; :}

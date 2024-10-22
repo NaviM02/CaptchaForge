@@ -13,6 +13,7 @@ public class VariableDeclarator extends Node {
     private Object value;
     private boolean isParam = false;
     private String file = "";
+    private boolean global = false;
 
     public VariableDeclarator(Location loc, Identifier id, Expr init) {
         super(loc, "");

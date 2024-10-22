@@ -64,7 +64,7 @@ public class Label {
                 html.append(str).append(" ");
             }
             else if(body instanceof Label label){
-                if(label.getType() == Label.TITLE && !done){
+                if(label.getType() == Label.BODY && !done){
                     html.append(script).append("\n");
                     done = true;
                 }

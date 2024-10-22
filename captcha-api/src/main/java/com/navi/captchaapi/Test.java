@@ -76,7 +76,11 @@ public class Test {
         ErrorsLP.getErrors().forEach(System.out::println);
 
         if(ErrorsLP.getErrors().isEmpty()){
-            String script = "<script>\n" + Compile.parser.program.getScript() + "</script>";
+            String staticVars = "";
+            for(String var : Compile.parser.staticVariables){
+                staticVars += var + ";\n";
+            }
+            String script = "<script>\n" + staticVars + Compile.parser.program.getScript() + "</script>";
             String html = Compile.parser.label.toHtml(script);
             System.out.println(html);
         }
