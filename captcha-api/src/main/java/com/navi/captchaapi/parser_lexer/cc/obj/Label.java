@@ -55,23 +55,181 @@ public class Label {
     }
 
     public String toHtml(String script){
-        boolean done = false;
+        boolean isBody = false;
         parameters.forEach(Parameter::getParam);
         StringBuilder html = new StringBuilder();
-        html.append("<").append(LABELS[type-1].toLowerCase()).append(">\n");
-        for(Object body: content){
-            if(body instanceof String str){
-                html.append(str).append(" ");
-            }
-            else if(body instanceof Label label){
-                if(label.getType() == Label.BODY && !done){
-                    html.append(script).append("\n");
-                    done = true;
+        if(this.type != INPUT && this.type != BR){
+            html.append("<").append(LABELS[type-1].toLowerCase()).append(" ").append(paramsText()).append(">\n");
+            for(Object body: content){
+                if(body instanceof String str){
+                    html.append(str).append(" ");
                 }
-                html.append((label).toHtml(script));
+                else if(body instanceof Label label){
+                    if(label.getType() == Label.BODY){
+                        isBody = true;
+                    }
+                    html.append((label).toHtml(script));
+                }
+            }
+            if(isBody) html.append(script).append("\n");
+            if(this.type == Label.HEAD) html.append(generalStyle());
+            html.append("</").append(LABELS[type-1].toLowerCase()).append(">\n");
+        }
+        else{
+            html.append("<").append(LABELS[type-1].toLowerCase()).append(" ").append(paramsText()).append(">\n");
+        }
+        return html.toString();
+    }
+    public String functions(){
+        String insert = """
+                function INSERT(text){
+                    document.body.insertAdjacentHTML('beforeend', text);
+                }
+                """;
+        String asc = """
+                function ASC(text){
+                    return text.split('').sort().join('');
+                }
+                """;
+        String desc = """
+                function DESC(text){
+                    return text.split('').sort().reverse().join('');
+                }
+                """;
+        String letPar = """
+                function LETPAR_NUM(text){
+                    return text.split('').map((letra, index) => {
+                        if (index % 2 === 0) {
+                          return letra.charCodeAt(0);
+                        }
+                        return letra;
+                    }).join('');
+                }
+                """;
+        String letNotPar = """
+                function LETIMPAR_NUM(text){
+                    return text.split('').map((letra, index) => {
+                        if (index % 2 !== 0) {
+                          return letra.charCodeAt(0);
+                        }
+                        return letra;
+                    }).join('');
+                }
+                """;
+        String reverse = """
+                function REVERSE(text) {
+                  return text.split('').reverse().join('');
+                }
+                """;
+        String randomChar = """
+                function CARACTER_ALEATORIO() {
+                  const codigoAleatorio = Math.random() < 0.5 ?
+                    Math.floor(Math.random() * 26) + 65 :
+                    Math.floor(Math.random() * 26) + 97;
+                  return String.fromCharCode(codigoAleatorio);
+                }
+                """;
+        String randomNum = """
+                function NUM_ALEATORIO() {
+                  return Math.floor(Math.random() * 10);
+                }
+                """;
+        String alertInfo = """
+                function ALERT_INFO(msj) {
+                  alert(msj);
+                }
+                """;
+        String exit = """
+                function EXIT() {
+                  return;
+                }
+                """;
+        String redirect = """
+                function REDIRECT() {
+                  window.location.href = url;
+                }
+                """;
+        return insert + asc + desc + letPar + letNotPar + reverse + randomChar + randomNum + alertInfo + exit + redirect;
+    }
+    public String paramsText(){
+        String params = "";
+        String initStyle = "";
+        String endStyle = "\"";
+        String style = "";
+        switch (this.type){
+            case HEAD, BR, OPTION, TITLE, LINK -> {
+                initStyle = "";
+                endStyle = "";
+            }
+            case BODY, DIV -> style = "style = \"background: #F5F5DC; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; ";
+            case BUTTON -> initStyle = "style = \"";
+            default -> initStyle = "style = \"padding: 3px; margin 10px; ";
+        }
+        for (Parameter parameter : parameters){
+            if(parameter.getType() == Parameter.ID || parameter.getType() == Parameter.HREF || parameter.getType() == Parameter.NAME || parameter.getType() == Parameter.ONCLICK){
+                params += parameter.getId() + " ";
+            }
+            else{
+                if(parameter.getType() == Parameter.CLASS){
+                    String val = parameter.getValue();
+                    if(val.equals("row")) params += "flex-direction: row";
+                    else params += "flex-direction: column";
+                }
+                else style += parameter.getParam() + " ";
             }
         }
-        html.append("</").append(LABELS[type-1].toLowerCase()).append(">\n");
-        return html.toString();
+        return params + initStyle + style + endStyle;
+    }
+
+    public String getName(){
+        for(Parameter parameter: parameters){
+            if(parameter.getType() == Parameter.NAME) return parameter.getValue();
+        }
+        return "";
+    }
+    public String getId(){
+        for(Parameter parameter: parameters){
+            if(parameter.getType() == Parameter.ID) return parameter.getValue();
+        }
+        return "";
+    }
+
+    public String generalStyle(){
+        return """
+                <style>
+                	body {
+                	    display: flex;
+                	    flex-direction: column;
+                	    align-items: center;
+                	    background-color: #f5f5dc;
+                	    color: #333;
+                	    box-sizing: border-box;
+                	}
+                	div {
+                	    display: flex;
+                	    flex-direction: column;
+                	    align-items: center;
+                	    background-color: #f5f5dc;
+                	    color: #333;
+                	}
+                        button {
+                            margin: 10px;
+                            padding: 10px 20px;
+                            border-radius: 15px;
+                            border: none;
+                            background-color: #39C5BB;
+                            color: white;
+                            font-weight: bold;
+                            cursor: pointer;
+                            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+                        }
+                
+                        button:hover {
+                            background-color: #5ee5d5;
+                            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+                        }
+                </style>
+                """;
     }
 }

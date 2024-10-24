@@ -1,0 +1,145 @@
+package com.navi.captchaapi.parser_lexer.db;
+import java_cup.runtime.*;
+import java.util.*;
+import java.text.DecimalFormat;
+import com.navi.captchaapi.parser_lexer.*;
+import com.navi.captchaapi.model.*;
+import com.navi.captchaapi.parser_lexer.db.objs.Pos;
+
+parser code
+{:
+    public ArrayList<Pos> positions = new ArrayList<>();
+    public Pos finalPos = new Pos();
+
+    public ArrayList<String> ids = new ArrayList<>();
+    public ArrayList<Captcha> captchas = new ArrayList<>();
+
+    public DBParser(DBLexer lex) {
+        super(lex);
+    }
+    //Metodo al que se llama ante algun error sintactico
+    public void syntax_error(Symbol s){
+        String lexeme = s.value.toString();
+        int line = s.left;
+        int col = s.right;
+        System.out.println("ERROR SINTÁCTICO RECUPERADO");
+        System.out.println("\tLexeme: " + lexeme);
+        System.out.println("\trow: " + line);
+        System.out.println("\tcol: " + col);
+        addError(lexeme, line, col, " ");
+    }
+
+    //Metodo que se llama en el momento en que ya no es posible una recuperacion
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        String lexeme = s.value.toString();
+        int line = s.left;
+        int col = s.right;
+        System.out.println("ERROR SINTACTICO NO RECUPERABLE");
+        System.out.println("\tLexeme: " + lexeme);
+        System.out.println("\trow: " + line);
+        System.out.println("\tcol: " + col);
+        addError(lexeme, line, col, " ");
+    }
+
+    private void addError(String lexeme, int line, int col, String description){
+        ErrorsLP.addError(lexeme, line, col, "Error Sintáctico", description);
+    }
+
+    private void addParameterError(String type, int line, int col){
+        addError(type, line, col, "Parametro " + type + " duplicado");
+    }
+    private void addPError(String type, int line, int col){
+        addError(type, line, col, "Parametro " + type + " no esperado");
+    }
+    protected int error_sync_size() {
+            return 1;
+    }
+:}
+
+terminal
+        DB_CAPTCHAS, ID, NOMBRE, HTML, USADO, ACIERTOS, FALLOS, ULTIMO_USO,
+        LPAREN, RPAREN, LBRACE, RBRACE
+        ;
+
+terminal String STRING;
+
+terminal String COLON, COMMA;
+
+terminal Integer DIGIT;
+
+non terminal s, db_captchas;
+
+non terminal Captcha captcha;
+
+non terminal ArrayList<Captcha> captchas;
+
+non terminal String id, name, lastUse, html;
+
+non terminal Integer timesUsed, successes, fails;
+
+
+start with s;
+
+s ::=  db_captchas
+    ;
+
+db_captchas ::= DB_CAPTCHAS LPAREN captchas:caps RPAREN:f
+        {:
+        finalPos = new Pos(fleft, fright);
+        captchas = caps;
+        :}
+        | DB_CAPTCHAS LPAREN RPAREN:f
+        {:
+        finalPos = new Pos(fleft, fright);
+        :}
+        ;
+
+
+captchas ::= captcha:c
+        {:
+        ArrayList<Captcha> caps = new ArrayList<>();
+        caps.add(c);
+        RESULT = caps;
+        :}
+        | captchas:caps COMMA captcha:c
+        {:
+        caps.add(c);
+        RESULT = caps;
+        :}
+        ;
+
+captcha ::= LBRACE:b1 id:i name:n timesUsed:t successes:s fails:f lastUse:d html:h RBRACE:b2
+        {:
+        positions.add(new Pos(b1left, b1right, b2left, b2right));
+
+        Captcha captcha = new Captcha(i, n, t, s, f, null, h);
+        if(!d.equals("null")) captcha.setLastUseString(d);
+
+        ids.add(i);
+        RESULT = captcha;
+        :}
+        ;
+
+id ::= ID COLON STRING:s COMMA
+    {: RESULT = s.replaceAll("\"", ""); :};
+
+name ::= NOMBRE COLON STRING:s COMMA
+        {: RESULT = s.replaceAll("\"", ""); :};
+
+timesUsed ::= USADO COLON DIGIT:d COMMA
+            {: RESULT = d; :};
+
+successes ::= ACIERTOS COLON DIGIT:d COMMA
+            {: RESULT = d; :};
+
+fails ::= FALLOS COLON DIGIT:d COMMA
+        {: RESULT = d; :};
+
+lastUse ::= ULTIMO_USO COLON STRING:s COMMA
+        {: RESULT = s.replaceAll("\"", ""); :};
+
+html ::= HTML COLON STRING:s
+                {: RESULT = s.replaceAll("\"", ""); :};
+
+
+

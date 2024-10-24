@@ -17,6 +17,7 @@ public class Program extends Node{
         super(loc, "");
         this.body = body;
         this.table = new SymTable("global");
+        addFunctions();
     }
 
     @Override
@@ -30,8 +31,32 @@ public class Program extends Node{
     public String getScript(){
         StringBuilder sb = new StringBuilder();
         for(Node node : body) {
-            sb.append(node.getText()).append("\n");
+            if(!node.getText().isEmpty()) sb.append(node.getText()).append("\n");
         }
         return sb.toString();
+    }
+    public void addFunctions(){
+        var loc = new Location(0, 0);
+        var paramText = new ArrayList<FunctionParam>();
+        paramText.add(new FunctionParam(loc, Type.STRING, new Identifier(loc, "text")));
+
+        addFunction(loc, "INSERT", paramText, Type.VOID, new ArrayList<>());
+        addFunction(loc, "ASC", paramText, Type.STRING, new ArrayList<>());
+        addFunction(loc, "DESC", paramText, Type.STRING, new ArrayList<>());
+        addFunction(loc, "DESC", paramText, Type.STRING, new ArrayList<>());
+        addFunction(loc, "LETPAR_NUM", paramText, Type.STRING, new ArrayList<>());
+        addFunction(loc, "LETIMPAR_NUM", paramText, Type.STRING, new ArrayList<>());
+        addFunction(loc, "REVERSE", paramText, Type.STRING, new ArrayList<>());
+        addFunction(loc, "CARACTER_ALEATORIO", new ArrayList<>(), Type.CHAR, new ArrayList<>());
+        addFunction(loc, "NUM_ALEATORIO", new ArrayList<>(), Type.INT, new ArrayList<>());
+        addFunction(loc, "ALERT_INFO", paramText, Type.VOID, new ArrayList<>());
+        addFunction(loc, "EXIT", new ArrayList<>(), Type.VOID, new ArrayList<>());
+        addFunction(loc, "REDIRECT", new ArrayList<>(), Type.VOID, new ArrayList<>());
+    }
+
+    public void addFunction(Location loc, String id, List<FunctionParam> params, Type type, List<Node> body){
+        var functionDeclaration = new FunctionDeclaration(loc, id, params, type, body);
+        functionDeclaration.setText("");
+        this.body.add(functionDeclaration);
     }
 }

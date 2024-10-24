@@ -1130,7 +1130,7 @@ public class CCLexer implements java_cup.runtime.Scanner {
         return new Symbol(type, yyline+1,yycolumn+1);
     }
     private Symbol symbol(int type, Object value){
-        System.out.println(type + " line: " + (yyline+1) + " col: "+(yycolumn+1) + " " + value);
+        //System.out.println(type + " line: " + (yyline+1) + " col: "+(yycolumn+1) + " " + value);
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
     private void error(){

@@ -1,8 +1,11 @@
 package com.navi.captchaapi.parser_lexer.cc.obj.node;
+import com.navi.captchaapi.parser_lexer.ErrorsLP;
+import com.navi.captchaapi.parser_lexer.cc.Compile;
 import com.navi.captchaapi.parser_lexer.cc.obj.Location;
 import com.navi.captchaapi.parser_lexer.cc.obj.analyze.Visitor;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,17 @@ public class CallFunction extends Node {
             sb1.append(node.getText()).append(", ");
         }
         if(sb1.isEmpty()) sb1.append(", ");
-        setText(callee + "(" + sb1.substring(0, sb1.length() - 2) + ")");
+        String param = sb1.substring(0, sb1.length() - 2);
+        if(callee.equals("INSERT")){
+            Compile.subCompile(param.replaceAll("'",""));
+            if(ErrorsLP.getErrors().isEmpty()){
+                var label = Compile.parser2.label;
+                if(label.getParameters() == null) label.setParameters(new ArrayList<>());
+                String html = label.toHtml("");
+                setText(callee + "('" + html.replaceAll("\n"," ") + "')");
+            }
+            else setText(callee + "('error')");
+        }
+        else setText(callee + "(" + param + ")");
     }
 }

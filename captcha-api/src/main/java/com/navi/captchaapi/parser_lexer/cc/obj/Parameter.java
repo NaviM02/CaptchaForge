@@ -21,8 +21,8 @@ public class Parameter {
     public static final int HEIGHT = 15;
     public static final int ALT = 16;
     public static final int ONCLICK = 17;
-    public static final String[] PARAMETERS = {"href", "background", "color", "font_size",
-        "font_family", "text_align", "type", "id", "name", "cols", "rows", "class",
+    public static final String[] PARAMETERS = {"href", "background", "color", "font-size",
+        "font-family", "text-align", "type", "id", "name", "cols", "rows", "class",
         "src", "width", "height", "alt", "onclick"};
 
     private Location loc;
@@ -38,8 +38,15 @@ public class Parameter {
 
     }
     public String getParam(){
-        System.out.println(PARAMETERS[type-1] + " = \"" + value + "\"");
+        //System.out.println(PARAMETERS[type-1] + " = \"" + value + "\"");
+        return PARAMETERS[type-1] + ": " + value + ";";
+    }
+    public String getId(){
+        //System.out.println(PARAMETERS[type-1] + " = \"" + value + "\"");
         return PARAMETERS[type-1] + " = \"" + value + "\"";
+    }
+    public String getTypeStr(){
+        return PARAMETERS[type-1];
     }
 
     public void defaultParam(){

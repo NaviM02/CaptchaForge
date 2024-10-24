@@ -8,9 +8,109 @@ import com.navi.captchaapi.parser_lexer.cc.obj.node.*;
 
 parser code
 {:
+
     public Label label = new Label();
     public Program program = new Program(new Location(0,0), new ArrayList<>());
     public ArrayList<String> staticVariables = new ArrayList<>();
+
+    boolean hasHref, hasBackground, hasColor, hasFontSize, hasFontFamily, hasTextAlign, hasType, hasId, hasName, hasCols, hasRows, hasClass, hasSrc, hasWidth, hasHeight, hasAlt, hasOnclick;
+
+    public void resetBooleans(){
+        hasHref = false;
+        hasBackground = false;
+        hasColor = false;
+        hasFontSize = false;
+        hasFontFamily = false;
+        hasTextAlign = false;
+        hasType = false;
+        hasId = false;
+        hasName = false;
+        hasCols = false;
+        hasRows = false;
+        hasClass = false;
+        hasSrc = false;
+        hasWidth = false;
+        hasHeight = false;
+        hasAlt = false;
+        hasOnclick = false;
+    }
+    public boolean validateCC(){
+        boolean possibleCondition = hasId || hasName;
+        boolean other = !(hasHref || hasBackground || hasColor || hasFontSize || hasFontFamily ||
+                hasTextAlign || hasType || hasCols || hasRows ||
+                hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+        return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateBody(){
+      boolean possibleCondition = hasBackground;
+      boolean other = !(hasHref || hasColor || hasFontSize || hasFontFamily ||
+              hasTextAlign || hasType || hasId || hasName || hasCols || hasRows ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateLink(){
+      boolean possibleCondition = hasHref;
+      boolean other = !(hasBackground || hasColor || hasFontSize || hasFontFamily ||
+              hasTextAlign || hasType || hasId || hasName || hasCols || hasRows ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateSpanSelectH1P(){
+      boolean possibleCondition = hasColor || hasFontFamily || hasFontSize || hasTextAlign || hasId;
+      boolean other = !(hasHref || hasBackground ||
+              hasType || hasName || hasCols || hasRows ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateInput(){
+      boolean possibleCondition = hasColor || hasFontFamily || hasFontSize || hasTextAlign || hasId || hasType;
+      boolean other = !(hasHref || hasBackground ||
+              hasName || hasCols || hasRows ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateTextArea(){
+      boolean possibleCondition = hasFontFamily || hasFontSize || hasTextAlign || hasId || hasCols || hasRows;
+      boolean other = !(hasHref || hasBackground || hasColor ||
+              hasType || hasName ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateDiv(){
+      boolean possibleCondition = hasBackground || hasFontFamily || hasFontSize || hasTextAlign || hasId || hasClass || hasColor;
+      boolean other = !(hasHref ||
+              hasType || hasName || hasCols || hasRows ||
+              hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateImg(){
+      boolean possibleCondition = hasSrc || hasWidth || hasHeight || hasAlt || hasId;
+      boolean other = !(hasHref || hasBackground || hasColor || hasFontSize || hasFontFamily ||
+              hasTextAlign || hasType || hasName || hasCols || hasRows ||
+              hasClass || hasOnclick);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    public boolean validateButton(){
+      boolean possibleCondition = hasFontSize || hasFontFamily || hasTextAlign || hasId || hasColor || hasBackground || hasOnclick;
+      boolean other = !(hasHref ||
+              hasType || hasName || hasCols || hasRows ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt);
+
+      return (possibleCondition && other) || allFalse();
+    }
+    private boolean allFalse(){
+        return !(hasHref || hasBackground || hasColor || hasFontSize || hasFontFamily ||
+                hasTextAlign || hasType || hasId || hasName || hasCols || hasRows ||
+              hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
+    }
     public CCParser(CCLexer lex) {
         super(lex);
         //resetBooleans();
@@ -176,7 +276,12 @@ start with s;
 s ::= cc:c
     {:
     label = c;
-    :};
+    :}
+    | body_label:l
+    {:
+    label = (Label) l;
+    :}
+    ;
 /* Open labels */
 open_cc         ::= LT C_CC parameters_opt:p GT             {: RESULT = p; :};
 open_head       ::= LT C_HEAD GT                            {: RESULT = new ArrayList<>(); :};
@@ -474,76 +579,111 @@ parameters ::= parameter:p
 
 parameter ::= href:p
             {:
+            if(!hasHref) hasHref = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | background:p
             {:
+            if(!hasBackground) hasBackground = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | color:p
             {:
+            if(!hasColor) hasColor = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | font_size:p
             {:
+            if(!hasFontSize) hasFontSize = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | font_family:p
             {:
+            if(!hasFontFamily) hasFontFamily = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | text_align:p
             {:
+            if(!hasTextAlign) hasTextAlign = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | type:p
             {:
+            if(!hasType) hasType = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | id:p
             {:
+            if(!hasId) hasId = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | name:p
             {:
+            if(!hasName) hasName = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | cols:p
             {:
+            if(!hasCols) hasCols = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | rows:p
             {:
+            if(!hasRows) hasRows = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | clase:p
             {:
+            if(!hasClass) hasClass = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | src:p
             {:
+            if(!hasSrc) hasSrc = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | width:p
             {:
+            if(!hasWidth) hasWidth = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | height:p
             {:
+            if(!hasHeight) hasHeight = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | alt:p
             {:
+            if(!hasAlt) hasAlt = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             | onclick:p
             {:
+            if(!hasOnclick) hasOnclick = true;
+            else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
             ;
 
 href ::= LBRACKET HREF EQUAL string_literal:s RBRACKET
-        {: RESULT = new Parameter(sleft, sright, Parameter.HREF, s); :};
+        {: staticVariables.add("let url = '" + s + "'");
+        RESULT = new Parameter(sleft, sright, Parameter.HREF, s); :};
 
 background ::= LBRACKET BACKGROUND EQUAL string_literal:s RBRACKET
         {: RESULT = new Parameter(sleft, sright, Parameter.BACKGROUND, s); :};
@@ -761,7 +901,11 @@ function_call_return ::= ASC:f LPAREN expression:p RPAREN
                         | NUM_ALEATORIO:f LPAREN RPAREN
                         {:RESULT = new CallFunction(new Location(fleft, fright), f, new ArrayList<>());:}
                         | GET_ELEMENT_BY_ID:f LPAREN param:p RPAREN
-                        {:RESULT = new CallFunction(new Location(fleft, fright), f, p);:}
+                        {:
+                        var xd = new CallFunction(new Location(fleft, fright), "document.getElementById", p);
+                        xd.setText(xd.getText() + ".value");
+                        RESULT = xd;
+                        :}
                         ;
 
 

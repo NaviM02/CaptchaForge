@@ -8,8 +8,8 @@ public class FunctionParam extends Node{
     private Type type;
     private Identifier id;
 
-    public FunctionParam(Location loc, String text, Type type, Identifier id) {
-        super(loc, text);
+    public FunctionParam(Location loc, Type type, Identifier id) {
+        super(loc, "");
         this.type = type;
         this.id = id;
     }

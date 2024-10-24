@@ -64,7 +64,7 @@ public class FunctionDeclaration extends Node implements TableHolder {
         for (Node node : body) {
             sb2.append("\t").append(node.getText()).append("\n");
         }
-        System.out.println("xd?");
-        setText("function " + id + "(" + sb1 + "){\n"+sb2 + "}");
+        if(id.equals("ON_LOAD")) setText("window.onload = ON_LOAD;\nfunction " + id + "(" + sb1 + "){\n"+sb2 +"}\n");
+        else setText("function " + id + "(" + sb1 + "){\n"+sb2 + "}");
     }
 }

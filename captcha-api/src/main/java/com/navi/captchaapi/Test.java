@@ -1,5 +1,8 @@
 package com.navi.captchaapi;
 
+import com.navi.captchaapi.data.CaptchaDAO;
+import com.navi.captchaapi.data.Connection;
+import com.navi.captchaapi.model.Captcha;
 import com.navi.captchaapi.parser_lexer.ErrorsLP;
 import com.navi.captchaapi.parser_lexer.cc.Compile;
 
@@ -29,8 +32,7 @@ public class Test {
                 ON_LOAD () [\s
                 !!Estas instrucciones se ejecutan media vez se entra al scripting !! Insertamos el input con sus parámetros con la instrucción INSERT
                 INSERT('<C_INPUT [type= "text"] [text-align= "center"]\s
-                [id= "entrada_1"] >');\s
-                INSERT('</C_INPUT>');\s
+                [id= "entrada_1"] ></C_INPUT>');\s
                 ]\s
                 </C_SCRIPTING>
                 !! Boton que llama a la funcionalidad calc\s
@@ -42,7 +44,7 @@ public class Test {
                 !! Estas instrucciones no se ejecutan hasta llamar a FUNCTION_calc()
                 integer @global contador_fallas = 5;\s
                 string result_caja_texto = getElemenById('entrada_1');\s
-                string result = "10 ";\s
+                string result = "10";\s
                 string mensaje_fallo = "El captcha no fue validado intente otra vez ";\s
                 string mensaje_acierto = "El captcha fue validado ";\s
                 string mensaje_final = "El captcha no logró ser validado :( intente mas tarde";\s
@@ -74,15 +76,25 @@ public class Test {
         Compile.compile(text);
 
         ErrorsLP.getErrors().forEach(System.out::println);
+        Connection.createDB();
+        CaptchaDAO captchaDAO = new CaptchaDAO();
 
         if(ErrorsLP.getErrors().isEmpty()){
+            var parser = Compile.parser;
+            var label = Compile.parser.label;
             String staticVars = "";
-            for(String var : Compile.parser.staticVariables){
+            for(String var : parser.staticVariables){
                 staticVars += var + ";\n";
             }
-            String script = "<script>\n" + staticVars + Compile.parser.program.getScript() + "</script>";
-            String html = Compile.parser.label.toHtml(script);
-            System.out.println(html);
+            String script = "<script>\n" + staticVars + label.functions() + Compile.parser.program.getScript() + "</script>";
+            String html = label.toHtml(script);
+
+            //var newCaptcha = new Captcha(label.getId(), label.getName(), html);
+            var newCaptcha = new Captcha("", "", html);
+
+            captchaDAO.insertCaptcha(newCaptcha);
+            System.out.println(newCaptcha.getHtml());
         }
+
     }
 }

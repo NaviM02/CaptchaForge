@@ -165,7 +165,7 @@ equal = "="
 
 /* Comments */
 init_multiline_comment =  "<!--"
-end_multiline_comment = "-->"
+end_multiline_comment = "-->"<title style = "">
 init_inline_comment = "!!"
 inline_comment = {init_inline_comment}[^\n]*
 multiline_comment = {init_multiline_comment}[^]*{end_multiline_comment}
