@@ -25,8 +25,9 @@ public class CaptchaController extends HttpServlet {
 
             String txt = "[\n";
             for(Captcha c: captchas){
-                txt += c.dbString() + "\n";
+                txt += c.dbString() + ",\n";
             }
+            if(!captchas.isEmpty()) txt = txt.substring(0, txt.length() - 2);
             txt += "]";
             response.setStatus(HttpServletResponse.SC_OK);
             send(response, txt);
