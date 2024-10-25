@@ -109,7 +109,6 @@ public class SymTableVisitor extends Visitor{
             CheckUndefinedGlobalVisitor checkUndefined = new CheckUndefinedGlobalVisitor(this.filename, node.getTable());
             checkUndefined.setGlobal(this.global);
             addUpperAmbit(child, node);
-
             if (child instanceof VariableDeclarator variable) {
                 if (!node.getTable().addVariable(variable)) {
                     ErrorsLP.logError(variable.getId().getLoc(),

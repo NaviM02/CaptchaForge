@@ -158,19 +158,21 @@ public class ExpressionsVisitor extends Visitor {
                 }
             }
         }
-        switch (node.getOperator()){
-            case "!" -> {
-                if(node.getType() != Type.BOOLEAN){
-                    ErrorsLP.logError(node.loc, "La operación " + node.getOperator() + " " + node.getType() + " es inválida");
+        if(node.getOperator() != null){
+            switch (node.getOperator()){
+                case "!" -> {
+                    if(node.getType() != Type.BOOLEAN){
+                        ErrorsLP.logError(node.loc, "La operación " + node.getOperator() + " " + node.getType() + " es inválida");
+                    }
                 }
-            }
-            case "-" -> {
-                var tp = getBinaryType(new UnaryExpression(null, ("-"+node.getText()), Type.INT, "", 0), "-", node);
-                if(tp != null){
-                    node.setType(tp);
-                }
-                else{
-                    ErrorsLP.logError(node.loc, "La operación " + node.getOperator() + " " + node.getType() + " es inválida");
+                case "-" -> {
+                    var tp = getBinaryType(new UnaryExpression(null, ("-"+node.getText()), Type.INT, "", 0), "-", node);
+                    if(tp != null){
+                        node.setType(tp);
+                    }
+                    else{
+                        ErrorsLP.logError(node.loc, "La operación " + node.getOperator() + " " + node.getType() + " es inválida");
+                    }
                 }
             }
         }
@@ -189,6 +191,9 @@ public class ExpressionsVisitor extends Visitor {
 
     @Override
     public void visitVariableDeclarator(VariableDeclarator node) {
+        System.out.println("si visita");
+        System.out.println(node.getText());
+        System.out.println(node.getType());
         if(node.getInit() != null){
             var errorType = getErrorTypes(node.getType());
             if(errorType.length > 0 && node.getInit().getType() != null && contains(errorType, node.getInit().getType())){

@@ -47,9 +47,9 @@ public class CaptchaController extends HttpServlet {
             return;
         }
 
-
         response.setStatus(HttpServletResponse.SC_OK);
-        send(response, captchaDAO.viewCaptcha(captchaId).dbString());
+        var htmlDecode = captchaDAO.viewCaptcha(captchaId).getDecodedHtml();
+        send(response, htmlDecode);
     }
 
     @Override
@@ -65,10 +65,11 @@ public class CaptchaController extends HttpServlet {
                 for(String var : parser.staticVariables){
                     staticVars += var + ";\n";
                 }
-                String script = "<script>\n" + staticVars + label.functions() + Compile.parser.program.getScript() + "</script>";
-                String html = label.toHtml(script);
+                    String script = "<script>\n" + staticVars + label.functions() + Compile.parser.program.getScript() + "</script>";
+                String html = label.toHtml(new StringBuilder(script));
                 var newCaptcha = new Captcha(label.getId(), label.getName(), html);
                 captchaDAO.insertCaptcha(newCaptcha);
+                send(response, "Captcha creado exitosamente: " + label.getId());
                 response.setStatus(HttpServletResponse.SC_CREATED);
             }
             else {

@@ -5,6 +5,7 @@ import com.navi.captchaapi.data.Connection;
 import com.navi.captchaapi.model.Captcha;
 import com.navi.captchaapi.parser_lexer.ErrorsLP;
 import com.navi.captchaapi.parser_lexer.cc.Compile;
+import com.navi.captchaapi.parser_lexer.cc.obj.analyze.SymTableGlobalVisitor;
 
 public class Test {
     public static void main(String[] args){
@@ -82,18 +83,27 @@ public class Test {
         if(ErrorsLP.getErrors().isEmpty()){
             var parser = Compile.parser;
             var label = Compile.parser.label;
+/*
             String staticVars = "";
             for(String var : parser.staticVariables){
                 staticVars += var + ";\n";
             }
             String script = "<script>\n" + staticVars + label.functions() + Compile.parser.program.getScript() + "</script>";
-            String html = label.toHtml(script);
+            String html = label.toHtml(new StringBuilder(script));
+*/
 
             //var newCaptcha = new Captcha(label.getId(), label.getName(), html);
-            var newCaptcha = new Captcha("", "", html);
+            //var newCaptcha = new Captcha("", "", html);
 
-            captchaDAO.insertCaptcha(newCaptcha);
-            System.out.println(newCaptcha.getHtml());
+            //captchaDAO.insertCaptcha(newCaptcha);
+            //System.out.println(newCaptcha.getHtml());
+
+            var program = parser.program;
+            var globalSymT = new SymTableGlobalVisitor("xd");
+            globalSymT.setGlobal(program.getTable());
+
+            globalSymT.visit(program);
+            ErrorsLP.getErrors().forEach(System.out::println);
         }
 
     }

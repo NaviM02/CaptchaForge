@@ -46,7 +46,7 @@ public class CallFunction extends Node {
             if(ErrorsLP.getErrors().isEmpty()){
                 var label = Compile.parser2.label;
                 if(label.getParameters() == null) label.setParameters(new ArrayList<>());
-                String html = label.toHtml("");
+                String html = label.toHtml(new StringBuilder());
                 setText(callee + "('" + html.replaceAll("\n"," ") + "')");
             }
             else setText(callee + "('error')");

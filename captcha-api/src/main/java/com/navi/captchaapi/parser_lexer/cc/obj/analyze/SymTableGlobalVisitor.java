@@ -60,6 +60,13 @@ public class SymTableGlobalVisitor extends Visitor {
                 // (child as Assignment).accept(checkUndefined, null);
             }
         }
+
+        var simT = new SymTableVisitor(this.filename);
+        simT.setGlobal(node.getTable());
+        node.accept(simT, null);
+        var expr = new ExpressionsVisitor(this.filename);
+        expr.setGlobal(node.getTable());
+        node.accept(expr, null);
     }
 
 

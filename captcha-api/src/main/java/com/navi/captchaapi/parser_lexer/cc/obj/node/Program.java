@@ -3,6 +3,8 @@ package com.navi.captchaapi.parser_lexer.cc.obj.node;
 import java.util.*;
 
 import com.navi.captchaapi.parser_lexer.cc.obj.Location;
+import com.navi.captchaapi.parser_lexer.cc.obj.analyze.ExpressionsVisitor;
+import com.navi.captchaapi.parser_lexer.cc.obj.analyze.SymTableVisitor;
 import com.navi.captchaapi.parser_lexer.cc.obj.analyze.Visitor;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +45,6 @@ public class Program extends Node{
         addFunction(loc, "INSERT", paramText, Type.VOID, new ArrayList<>());
         addFunction(loc, "ASC", paramText, Type.STRING, new ArrayList<>());
         addFunction(loc, "DESC", paramText, Type.STRING, new ArrayList<>());
-        addFunction(loc, "DESC", paramText, Type.STRING, new ArrayList<>());
         addFunction(loc, "LETPAR_NUM", paramText, Type.STRING, new ArrayList<>());
         addFunction(loc, "LETIMPAR_NUM", paramText, Type.STRING, new ArrayList<>());
         addFunction(loc, "REVERSE", paramText, Type.STRING, new ArrayList<>());
@@ -52,6 +53,7 @@ public class Program extends Node{
         addFunction(loc, "ALERT_INFO", paramText, Type.VOID, new ArrayList<>());
         addFunction(loc, "EXIT", new ArrayList<>(), Type.VOID, new ArrayList<>());
         addFunction(loc, "REDIRECT", new ArrayList<>(), Type.VOID, new ArrayList<>());
+        addFunction(loc, "document.getElementById", paramText, Type.STRING, new ArrayList<>());
     }
 
     public void addFunction(Location loc, String id, List<FunctionParam> params, Type type, List<Node> body){

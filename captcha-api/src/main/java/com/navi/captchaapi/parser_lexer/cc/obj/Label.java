@@ -54,7 +54,7 @@ public class Label {
         this.content = content;
     }
 
-    public String toHtml(String script){
+    public String toHtml(StringBuilder script){
         boolean isBody = false;
         parameters.forEach(Parameter::getParam);
         StringBuilder html = new StringBuilder();
@@ -62,6 +62,9 @@ public class Label {
             html.append("<").append(LABELS[type-1].toLowerCase()).append(" ").append(paramsText()).append(">\n");
             for(Object body: content){
                 if(body instanceof String str){
+                    if(this.type == TITLE){
+                        insertTitleFunction(script, str);
+                    }
                     html.append(str).append(" ");
                 }
                 else if(body instanceof Label label){
@@ -82,8 +85,13 @@ public class Label {
     }
     public String functions(){
         String insert = """
-                function INSERT(text){
-                    document.body.insertAdjacentHTML('beforeend', text);
+                function INSERT(text) {
+                    const container = document.getElementById('captcha-container');
+                    if (container) {
+                        container.insertAdjacentHTML('beforeend', text);
+                    } else {
+                        document.body.insertAdjacentHTML('beforeend', text);
+                    }
                 }
                 """;
         String asc = """
@@ -152,30 +160,30 @@ public class Label {
         return insert + asc + desc + letPar + letNotPar + reverse + randomChar + randomNum + alertInfo + exit + redirect;
     }
     public String paramsText(){
-        String params = "";
+        StringBuilder params = new StringBuilder();
         String initStyle = "";
         String endStyle = "\"";
-        String style = "";
+        StringBuilder style = new StringBuilder();
         switch (this.type){
             case HEAD, BR, OPTION, TITLE, LINK -> {
                 initStyle = "";
                 endStyle = "";
             }
-            case BODY, DIV -> style = "style = \"background: #F5F5DC; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; ";
+            case BODY, DIV -> style = new StringBuilder("style = \"background: #F5F5DC; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #333;");
             case BUTTON -> initStyle = "style = \"";
             default -> initStyle = "style = \"padding: 3px; margin 10px; ";
         }
         for (Parameter parameter : parameters){
             if(parameter.getType() == Parameter.ID || parameter.getType() == Parameter.HREF || parameter.getType() == Parameter.NAME || parameter.getType() == Parameter.ONCLICK){
-                params += parameter.getId() + " ";
+                params.append(parameter.getId()).append(" ");
             }
             else{
                 if(parameter.getType() == Parameter.CLASS){
                     String val = parameter.getValue();
-                    if(val.equals("row")) params += "flex-direction: row";
-                    else params += "flex-direction: column";
+                    if(val.equals("row")) params.append("flex-direction: row");
+                    else params.append("flex-direction: column");
                 }
-                else style += parameter.getParam() + " ";
+                else style.append(parameter.getParam()).append(" ");
             }
         }
         return params + initStyle + style + endStyle;
@@ -197,39 +205,41 @@ public class Label {
     public String generalStyle(){
         return """
                 <style>
-                	body {
-                	    display: flex;
-                	    flex-direction: column;
-                	    align-items: center;
-                	    background-color: #f5f5dc;
-                	    color: #333;
-                	    box-sizing: border-box;
-                	}
-                	div {
-                	    display: flex;
-                	    flex-direction: column;
-                	    align-items: center;
-                	    background-color: #f5f5dc;
-                	    color: #333;
-                	}
-                        button {
-                            margin: 10px;
-                            padding: 10px 20px;
-                            border-radius: 15px;
-                            border: none;
-                            background-color: #39C5BB;
-                            color: white;
-                            font-weight: bold;
-                            cursor: pointer;
-                            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-                            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-                        }
-                
-                        button:hover {
-                            background-color: #5ee5d5;
-                            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
-                        }
+                    button {
+                        margin: 10px;
+                        padding: 10px 20px;
+                        border-radius: 15px;
+                        border: none;
+                        background-color: #39C5BB;
+                        color: white;
+                        font-weight: bold;
+                        cursor: pointer;
+                        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+                    }
+            
+                    button:hover {
+                        background-color: #5ee5d5;
+                        box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+                    }
                 </style>
                 """;
+    }
+
+    public void insertTitleFunction(StringBuilder script, String title) {
+        String titleFunction = "\nfunction changeTitle(newTitle) {\n" +
+                "    document.title = newTitle;\n" +
+                "}\n" +
+                "changeTitle('" + title + "');\n";
+
+        int scriptClosePos = script.lastIndexOf("</script>");
+
+        if (scriptClosePos != -1) {
+            script.insert(scriptClosePos, titleFunction);
+        }
+        else {
+            script.append(titleFunction);
+
+        }
     }
 }

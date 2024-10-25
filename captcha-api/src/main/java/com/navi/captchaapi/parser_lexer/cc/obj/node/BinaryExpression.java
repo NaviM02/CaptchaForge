@@ -20,7 +20,7 @@ public class BinaryExpression extends Expr {
     public void accept(Visitor visitor, SymTable ambit) {
         if(ambit != null) visitor.setAmbit(ambit);
         this.left.accept(visitor, ambit);
-        this.left.accept(visitor, ambit);
+        this.right.accept(visitor, ambit);
         visitor.visit(this);
     }
 }

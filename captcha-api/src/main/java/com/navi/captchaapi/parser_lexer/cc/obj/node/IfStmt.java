@@ -1,5 +1,6 @@
 package com.navi.captchaapi.parser_lexer.cc.obj.node;
 import com.navi.captchaapi.parser_lexer.cc.obj.Location;
+import com.navi.captchaapi.parser_lexer.cc.obj.analyze.SymTableVisitor;
 import com.navi.captchaapi.parser_lexer.cc.obj.analyze.Visitor;
 import com.navi.captchaapi.parser_lexer.cc.obj.node.interfaces.TableHolder;
 import lombok.*;
@@ -45,6 +46,19 @@ public class IfStmt extends Node implements TableHolder {
     public void accept(Visitor visitor, SymTable ambit) {
         if(ambit != null) visitor.setAmbit(ambit);
 
+        if (visitor.getClass().getSimpleName().equals(SymTableVisitor.class.getSimpleName())) {
+            visitor.visit(this);
+        } else {
+            for (Node child : consequent) {
+                child.accept(visitor, table);
+            }
+            for (Node child : alternate) {
+                child.accept(visitor, tableAlternate);
+            }
+            System.out.println(test.getText());
+            test.accept(visitor, ambit);
+            visitor.visit(this);
+        }
     }
 
     @Override

@@ -41,6 +41,10 @@ public class Captcha {
                 "}"
                 ;
     }
+    public String getDecodedHtml(){
+        byte[] decodedBytes = Base64.getDecoder().decode(html);
+        return new String(decodedBytes);
+    }
 
     public void setLastUseString(String date){
         this.lastUse = stringToDate(date);
