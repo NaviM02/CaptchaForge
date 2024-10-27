@@ -1,0 +1,37 @@
+<div class="container">
+  <form (ngSubmit)="submitSolicitud()">
+    <div class="button-row">
+      <!-- Botones a la izquierda -->
+      <div class="left-buttons">
+        <button type="button" (click)="newFile()">Nuevo</button>
+        <button type="button" (click)="saveFile()">Guardar</button>
+        <button type="button" (click)="saveAsFile()">Guardar como</button>
+        <button type="button" (click)="openFile()">Abrir</button>
+      </div>
+
+      <app-modal-file *ngIf="showModal" (fileCreated)="createNewFile($event)" (modalClosed)="onModalClosed()">
+      </app-modal-file>
+
+      <!-- Botón a la derecha -->
+      <div class="right-button">
+        <input type="submit" value="Compilar" />
+      </div>
+    </div>
+    <div class="editor">
+      <div class="line-numbers" [innerHTML]="lineNumbers"></div>
+      <textarea id="solicitude" [(ngModel)]="solicitude" name="solicitude" rows="19" cols="110" wrap="off"
+        spellcheck="false" (input)="updateLineNumbers()" (scroll)="syncScroll($event)"
+        (keyup)="updateCursorPosition($event)" (click)="updateCursorPosition($event)" (keydown)="handleKeydown($event)"
+        required></textarea>
+    </div>
+    <div class="cursor-position">{{ cursorPosition }}</div>
+    <br />
+  </form>
+
+  <!-- Área de respuesta del servidor -->
+  <div class="response-area">
+    <div class="line-numbers" [innerHTML]="lineNumbersR"></div>
+    <textarea id="serverResponse" [(ngModel)]="serverResponse" readonly (input)="updateLineNumbersR()" rows="7"
+      cols="110"></textarea>
+  </div>
+</div>

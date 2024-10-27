@@ -1,0 +1,9 @@
+<div class="modal">
+  <div class="modal-content">
+    <h2>Crear Nuevo Archivo</h2>
+    <label for="fileName">Nombre del Archivo:</label>
+    <input type="text" id="fileName" [(ngModel)]="fileName" placeholder="Ingrese el nombre del archivo">
+    <button (click)="createFile()">Crear</button>
+    <button (click)="cancel()">Cancelar</button>
+  </div>
+</div>

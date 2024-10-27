@@ -1,0 +1,22 @@
+<div class="report-container">
+    <h2>Listado de Captchas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Captcha</th>
+          <th>Nombre</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let captcha of captchas">
+          <td>{{ captcha.id }}</td>
+          <td>{{ captcha.name }}</td>
+          <td>
+            <button [routerLink]="['/captcha-display', captcha.id]" >Ver Captcha</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

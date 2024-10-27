@@ -1,0 +1,131 @@
+/* solicitud.component.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #34495e;
+}
+
+.tab-content {
+  background-color: #283838;
+  padding: 20px;
+  border: 2px solid #276f6b;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.editor {
+  display: flex;
+  background-color: #1f2e3a;
+  border: 2px solid #276f6b;
+  border-radius: 4px;
+  max-width: 1030px;
+  height: 330px;
+  overflow: hidden;
+}
+.response-area {
+  display: flex;
+  background-color: #1f2e3a;
+  border: 2px solid #276f6b;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.line-numbers {
+  background-color: #34495e;
+  color: #e0e0e0;
+  padding: 10px;
+  text-align: right;
+  font-size: 14px;
+  user-select: none;
+  border-right: 2px solid #276f6b;
+  overflow: hidden;
+}
+.line-numbers1 {
+  background-color: #34495e;
+  color: #e0e0e0;
+  padding: 10px;
+  text-align: right;
+  font-size: 14px;
+  user-select: none;
+  border-right: 2px solid #276f6b;
+  overflow: hidden;
+}
+
+.cursor-position {
+  margin-top: 5px;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+textarea {
+  flex-grow: 1;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 2px solid #276f6b;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  background-color: #1f2e3a;
+  color: #e0e0e0;
+  resize: none;
+  overflow: auto;
+}
+
+input[type="submit"] {
+  padding: 10px 20px;
+  border: none;
+  background-color: #283838;
+  color: #a1f4f0;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+input[type="submit"]:hover {
+  background-color: #2f9c95;
+}
+
+input[type="submit"]:active {
+  transform: translateY(2px);
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Botones a la izquierda */
+.left-buttons {
+  display: flex;
+  gap: 10px; /* Espacio entre los botones */
+}
+
+/* Botón a la derecha */
+.right-button {
+  margin-left: auto; /* Empujar el botón a la derecha */
+}
+
+button,
+input[type="submit"] {
+  padding: 10px 20px;
+  border: none;
+  background-color: #283838;
+  color: #a1f4f0;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background-color: #2f9c95;
+}
+
+button:active {
+  transform: translateY(2px);
+}

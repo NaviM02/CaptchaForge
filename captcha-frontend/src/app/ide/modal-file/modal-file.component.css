@@ -1,0 +1,70 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Para asegurarnos de que se muestre sobre otros elementos */
+}
+
+.modal-content {
+  background-color:#86cecb;
+  padding: 20px;
+  border-radius: 10px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+}
+
+h2 {
+  color: #1b7688; /* Turquesa oscuro */
+  margin-bottom: 15px;
+}
+
+label {
+  color: #1b7688; /* Turquesa oscuro */
+  font-weight: bold;
+}
+
+input[type="text"] {
+  margin: 10px 0;
+  padding: 10px;
+  border: 2px solid #86cecb; /* Cyan */
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+input[type="text"]:focus {
+  border-color: #1b7688; /* Turquesa oscuro cuando se enfoca */
+  outline: none; /* Sin borde azul predeterminado */
+}
+
+button {
+  background-color: #1f2e3a;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  margin: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #1b7688; /* Turquesa oscuro cuando se pasa el mouse */
+}
+
+button.cancel {
+  background-color: #f44336; /* Rojo para cancelar */
+}
+
+button.cancel:hover {
+  background-color: #d32f2f; /* Rojo más oscuro al pasar el mouse */
+}

@@ -1,0 +1,47 @@
+.report-container {
+    padding: 20px;
+  }
+  
+  h2 {
+    color: #ecf0f1; /* Blanco humo */
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+    background-color: #2c3e50; /* Fondo oscuro para la tabla */
+    color: #ecf0f1; /* Texto en color claro */
+  }
+  
+  thead {
+    background-color: #1abc9c; /* Verde Miku */
+  }
+  
+  th {
+    padding: 12px;
+    background-color: #1abc9c;
+    color: white;
+  }
+  
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #34495e; /* Borde acorde al fondo */
+  }
+  
+  tr:nth-child(even) {
+    background-color: #3a4a5e; /* Fondo más claro para filas pares */
+  }
+  
+  tr:hover {
+    background-color: #1abc9c; /* Verde Miku claro al pasar el mouse */
+  }
+  
+  tbody td {
+    color: #ecf0f1; /* Blanco humo */
+  }
+  

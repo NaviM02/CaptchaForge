@@ -1,0 +1,25 @@
+<div class="report-container">
+    <h2>Reporte de Captchas</h2>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre del Captcha</th>
+          <th>Cantidad de Veces Utilizado</th>
+          <th>Cantidad de Aciertos</th>
+          <th>Cantidad de Fallos</th>
+          <th>Última Fecha de Utilización</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let captcha of captchas">
+          <td>{{ captcha.name }}</td>
+          <td>{{ captcha.timesUsed }}</td>
+          <td>{{ captcha.successes }}</td>
+          <td>{{ captcha.fails }}</td>
+          <td>{{ captcha.lastUse | date: 'yyyy-MM-dd'}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

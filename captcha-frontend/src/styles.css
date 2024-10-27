@@ -1,1 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
+/* Estilos inspirados en Hatsune Miku */
+
+body {
+    background-color: #34495e;
+    font-family: 'Arial', sans-serif;
+    color: #FFFFFF; /* Texto en blanco */
+    margin: 0;
+}
+  
+/* Estilos para la barra de desplazamiento personalizada */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 10px;
+    background-color: #2c3e50; /* Fondo oscuro para la barra de desplazamiento */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #86cecb; /* Color Miku para el "thumb" (la parte que se arrastra) */
+    border-radius: 5px; /* Bordes redondeados */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #5fb7b3; /* Color más oscuro al pasar el cursor por encima */
+}

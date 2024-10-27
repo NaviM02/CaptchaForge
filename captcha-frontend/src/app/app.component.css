@@ -1,0 +1,48 @@
+/* Estilos del navbar */
+.navbar {
+  background-color: #39c5bb; /* Color Aqua base */
+  padding: 0; /* Espaciado interno */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-left {
+  display: flex;
+  justify-content: center;
+}
+
+.navbar .app-name {
+  color: #e0e0e0; /* Color de texto claro */
+  font-size: 22px; /* Tamaño de fuente para el nombre de la app */
+  font-family: 'Arial', sans-serif; /* Fuente para el nombre de la app */
+  font-weight: bold;
+  padding: 14px;
+
+}
+
+.navbar-left .nav-link {
+  display: block;
+  color: #e0e0e0; /* Color de texto claro */
+  text-align: center;
+  padding: 17px 20px ;
+  text-decoration: none;
+  font-size: 17px;
+}
+.navbar .nav-link:hover {
+  background-color: #2f9c95; /* Tono más oscuro para el hover */
+  color: #e0e0e0; /* Color de texto claro */
+}
+
+.navbar-right{
+  position: relative;
+}
+
+.logout-dropdown{
+  position: relative;
+  display: inline-block;
+}
+
+router-outlet {
+  margin-top: 20px;
+}
