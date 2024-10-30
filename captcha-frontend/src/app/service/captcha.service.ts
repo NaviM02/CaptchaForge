@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class CaptchaService {
-  url: string = 'http://localhost/CaptchasForge';
+  url: string = 'http://localhost/CaptchaForge';
   
   constructor(private http: HttpClient) { }
 

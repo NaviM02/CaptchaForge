@@ -16,7 +16,7 @@ export class IdeComponent {
   fileName = '';
   showModal: boolean = false;
 
-  constructor(private captchaService: CaptchaService){ }
+  constructor(private captchaService: CaptchaService) { }
 
   // Método para crear un nuevo archivo
   newFile() {
@@ -166,9 +166,15 @@ export class IdeComponent {
   submitSolicitud() {
     console.log('Solicitud enviada:', this.solicitude);
     this.captchaService.insertCaptcha(this.solicitude).subscribe({
-        next: (text) => {
-          console.log(text);
-        }
+      next: (text) => {
+        this.serverResponse += `${text}\n`;
+
+        // Desplazar el textarea automáticamente hasta el final
+        setTimeout(() => {
+          const textarea = document.getElementById('serverResponse') as HTMLTextAreaElement;
+          textarea.scrollTop = textarea.scrollHeight;
+        }, 0);
+      }
     });
   }
 

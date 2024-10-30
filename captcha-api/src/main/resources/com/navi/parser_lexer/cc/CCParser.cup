@@ -363,9 +363,10 @@ s ::= s_otp:c
     :}
     ;
 
-s_otp ::= cc:cc {: RESULT = cc; :}
-        | c_scripting
-        | s_otp cc
+s_otp ::= cc:cc c_scripting {: RESULT = cc; :}
+        | c_scripting cc:cc {: RESULT = cc; :}
+        | cc:cc                {: RESULT = cc; :}
+        | error body_labels
         ;
 
 /* Open labels */
@@ -420,7 +421,6 @@ cc ::= open_cc:p c_cc_body:l close_cc
         {:
         RESULT = new Label(pleft, pright, Label.HTML, p, l);
         :}
-        | error
         ;
 
 c_cc_body ::= c_head:h c_body:b
@@ -470,6 +470,7 @@ head_labels ::= c_title:t c_link:l
                 labels.add(t);
                 RESULT = labels;
                 :}
+                | error
                 ;
 
 c_body ::= open_body:p body_labels:l close_body
@@ -950,8 +951,11 @@ body_block ::= body_stmt:b
                 {:RESULT = b; :}
                 | body_block:bb body_stmt:b
                 {:
-                bb.addAll(b);
-                RESULT = bb; :}
+                if(bb != null && b != null){
+                  bb.addAll(b);
+                  RESULT = bb;
+                }
+                else RESULT = new ArrayList<>(); :}
                 ;
 
 body_stmt ::= variable_declarators:b SEMICOLON

@@ -31,10 +31,7 @@ export class CaptchaDisplayComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.captchaId = "";
     this.captcha = null;
-    if(this.url !== ""){
-      window.location.href = this.url;
-      this.url = "";
-    }
+    this.url = "";
   }
   loadCaptcha(){
     this.route.paramMap.subscribe(params => {
@@ -125,7 +122,7 @@ export class CaptchaDisplayComponent implements OnInit, OnDestroy{
     this.captchaService.updateCaptcha(this.captcha).subscribe({
       next:(text) =>{ 
         this.url = url;
-        
+        window.location.href = this.url;
       }});
   }
 

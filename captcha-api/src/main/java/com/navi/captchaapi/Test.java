@@ -75,7 +75,10 @@ public class Test {
                 </C_CC>
                 """;
 
-        Compile.compile(text);
+        String error = """
+                pollo azul con errores""";
+
+        Compile.compile(error);
 
         ErrorsLP.getErrors().forEach(System.out::println);
 

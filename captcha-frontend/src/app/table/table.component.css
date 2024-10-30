@@ -59,3 +59,14 @@ button {
 button:hover {
   background-color: #0094a8; /* Color de fondo al pasar el mouse (Color Oscuro) */
 }
+
+table a {
+  color: #39b5e0; /* Cyan similar al botón */
+  text-decoration: none; /* Quita el subrayado */
+  font-weight: bold; /* Hace el texto un poco más grueso */
+  transition: color 0.3s; /* Efecto de transición para el color */
+}
+
+table a:hover {
+  color: #0094a8; /* Color más oscuro al pasar el mouse */
+}

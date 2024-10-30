@@ -37,9 +37,9 @@ public class CallFunction extends Node {
     private void setTextNode(String callee, List<Expr> args) {
         StringBuilder sb1 = new StringBuilder();
         for (Expr node : args) {
-            sb1.append(node.getText()).append(", ");
+            sb1.append(node.getText()).append(" + ");
         }
-        if(sb1.isEmpty()) sb1.append(", ");
+        if(sb1.isEmpty()) sb1.append("+ ");
         String param = sb1.substring(0, sb1.length() - 2);
         if(callee.equals("INSERT")){
             String p = param.replaceAll("'","");

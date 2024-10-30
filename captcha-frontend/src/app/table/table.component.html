@@ -5,7 +5,7 @@
         <tr>
           <th>ID Captcha</th>
           <th>Nombre</th>
-          <th>Acciones</th>
+          <th>Link</th>
         </tr>
       </thead>
       <tbody>
@@ -13,7 +13,9 @@
           <td>{{ captcha.id }}</td>
           <td>{{ captcha.name }}</td>
           <td>
-            <button [routerLink]="['/captcha-display', captcha.id]" >Ver Captcha</button>
+            <a [routerLink]="['/captcha-display', captcha.id]" >
+              {{ 'http://localhost:4200/captcha-display/' + captcha.id }}
+            </a>
           </td>
         </tr>
       </tbody>
