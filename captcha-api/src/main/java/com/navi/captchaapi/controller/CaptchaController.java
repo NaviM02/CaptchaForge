@@ -5,6 +5,8 @@ import com.navi.captchaapi.model.Captcha;
 import com.navi.captchaapi.parser_lexer.ErrorsLP;
 import com.navi.captchaapi.parser_lexer.TError;
 import com.navi.captchaapi.parser_lexer.cc.Compile;
+import com.navi.captchaapi.parser_lexer.cc.obj.StaticVariables;
+import com.navi.captchaapi.parser_lexer.cc.obj.analyze.SymTableGlobalVisitor;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,14 +25,14 @@ public class CaptchaController extends HttpServlet {
         if (pathInfo == null || pathInfo.equals("/")) {
             var captchas = captchaDAO.select();
 
-            String txt = "[\n";
+            StringBuilder txt = new StringBuilder("[\n");
             for(Captcha c: captchas){
-                txt += c.dbString() + ",\n";
+                txt.append(c.dbString()).append(",\n");
             }
-            if(!captchas.isEmpty()) txt = txt.substring(0, txt.length() - 2);
-            txt += "]";
+            if(!captchas.isEmpty()) txt = new StringBuilder(txt.substring(0, txt.length() - 2));
+            txt.append("]");
             response.setStatus(HttpServletResponse.SC_OK);
-            send(response, txt);
+            send(response, txt.toString());
             return;
         }
 
@@ -48,7 +50,7 @@ public class CaptchaController extends HttpServlet {
         }
 
         response.setStatus(HttpServletResponse.SC_OK);
-        var htmlDecode = captchaDAO.viewCaptcha(captchaId).getDecodedHtml();
+        var htmlDecode = captchaDAO.viewCaptcha(captchaId).dbString();
         send(response, htmlDecode);
     }
 
@@ -61,23 +63,43 @@ public class CaptchaController extends HttpServlet {
             if(ErrorsLP.getErrors().isEmpty()){
                 var parser = Compile.parser;
                 var label = Compile.parser.label;
-                String staticVars = "";
-                for(String var : parser.staticVariables){
-                    staticVars += var + ";\n";
+                var program = parser.program;
+                var globalSymT = new SymTableGlobalVisitor("xd");
+                globalSymT.setGlobal(program.getTable());
+                globalSymT.visit(program);
+
+                if(ErrorsLP.getErrors().isEmpty()){
+                    String script = "<script>\nvar globalVariables = [];\n" + StaticVariables.getVariables() + label.functions() + parser.program.getScript() + "</script>";
+                    String html = label.toHtml(new StringBuilder(script));
+                    var newCaptcha = new Captcha(label.getId(), label.getName(), html);
+                    if(captchaDAO.insertCaptcha(newCaptcha)) {
+                        send(response, "Captcha creado exitosamente: " + label.getId());
+                        response.setStatus(HttpServletResponse.SC_CREATED);
+                    }
+                    else{
+                        StringBuilder err = new StringBuilder();
+                        for(TError e: ErrorsLP.getErrors()){
+                            err.append(e.toString()).append("\n");
+                        }
+                        send(response, err.toString());
+                    }
+
                 }
-                    String script = "<script>\n" + staticVars + label.functions() + Compile.parser.program.getScript() + "</script>";
-                String html = label.toHtml(new StringBuilder(script));
-                var newCaptcha = new Captcha(label.getId(), label.getName(), html);
-                captchaDAO.insertCaptcha(newCaptcha);
-                send(response, "Captcha creado exitosamente: " + label.getId());
-                response.setStatus(HttpServletResponse.SC_CREATED);
+                else {
+                    StringBuilder err = new StringBuilder();
+                    for(TError e: ErrorsLP.getErrors()){
+                        err.append(e.toString()).append("\n");
+                    }
+                    send(response, err.toString());
+                }
+
             }
             else {
-                String err = "";
+                StringBuilder err = new StringBuilder();
                 for(TError e: ErrorsLP.getErrors()){
-                    err += e.toString() + "\n";
+                    err.append(e.toString()).append("\n");
                 }
-                send(response, err);
+                send(response, err.toString());
             }
             return;
         }
@@ -140,9 +162,10 @@ public class CaptchaController extends HttpServlet {
         var reader = request.getReader();
 
         String line;
-        while ((line = reader.readLine()) != null) buffer.append(line);
+        while ((line = reader.readLine()) != null) buffer.append(line).append("\n");
 
         String payload = "db.captchas(\n" + buffer + "\n)";
+        System.out.println(payload);
         return captchaDAO.parse(payload);
     }
 }

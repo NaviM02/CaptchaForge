@@ -19,12 +19,12 @@ public class ForStmt extends Node implements TableHolder {
 
     public ForStmt(Location loc, List<Node> body, VariableDeclarator init, Expr test, String update) {
         super(loc, "");
-        this.setTextNode(body, init, test);
+        //this.setTextNode(body, init, test);
         this.body = body;
         this.init = init;
         this.init.setType(Type.INT);  // Asignamos el tipo de la variable
         this.test = test;
-        this.update = update;
+        this.update = "++";
         this.table = new SymTable("Para");  // Inicializamos la tabla de símbolos
     }
     public ForStmt(Location loc, String text, List<Node> body, Assignment assignment, Expr test, String update) {
@@ -48,18 +48,21 @@ public class ForStmt extends Node implements TableHolder {
                 child.accept(visitor, this.table);
             }
             this.init.accept(visitor, ambit);
-            //this.assignment.accept(visitor, ambit);
+            this.assignment.accept(visitor, ambit);
             this.test.accept(visitor, this.table);
             visitor.visit(this);
         }
     }
-    private void setTextNode(List<Node> body, VariableDeclarator init, Expr test) {
-        init.setText("let " + init.getText());
+    public void setTextNode(List<Node> body, VariableDeclarator init, Expr test) {
+        init.setText("let " + init.getId() + " = " + init.getInit().getText());
         StringBuilder sb = new StringBuilder();
 
         for(Node n: body){
-            sb.append(n.getText()).append('\n');
+            sb.append(addTabs(n.getText()));
         }
-        this.setText("for("+ init.getText() + ";" + init.getId().getText() + " < " + test.getText()+";"+ init.getId().getText() +"++){\n"+ sb + "}");
+        this.setText("for("+ init.getText() + "; " + init.getId().getName() + " < " + test.getText()+";"+ init.getId().getName() +"++){\n"+ sb + "}");
+    }
+    public static String addTabs(String text) {
+        return FunctionDeclaration.addTabs(text);
     }
 }

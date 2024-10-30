@@ -42,14 +42,20 @@ public class CallFunction extends Node {
         if(sb1.isEmpty()) sb1.append(", ");
         String param = sb1.substring(0, sb1.length() - 2);
         if(callee.equals("INSERT")){
-            Compile.subCompile(param.replaceAll("'",""));
+            String p = param.replaceAll("'","");
+            Compile.subCompile("<C_BODY>" + p + "</C_BODY>");
             if(ErrorsLP.getErrors().isEmpty()){
                 var label = Compile.parser2.label;
                 if(label.getParameters() == null) label.setParameters(new ArrayList<>());
                 String html = label.toHtml(new StringBuilder());
+                html = html.replaceAll("(?i)<body[^>]*>", "").replaceAll("(?i)</body>", "");
+
                 setText(callee + "('" + html.replaceAll("\n"," ") + "')");
             }
             else setText(callee + "('error')");
+        }
+        else if(callee.equals("EXIT")){
+            setText("return");
         }
         else setText(callee + "(" + param + ")");
     }

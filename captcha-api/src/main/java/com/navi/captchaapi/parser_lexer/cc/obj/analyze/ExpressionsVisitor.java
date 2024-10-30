@@ -1,5 +1,6 @@
 package com.navi.captchaapi.parser_lexer.cc.obj.analyze;
 import com.navi.captchaapi.parser_lexer.ErrorsLP;
+import com.navi.captchaapi.parser_lexer.cc.obj.StaticVariables;
 import com.navi.captchaapi.parser_lexer.cc.obj.node.*;
 import lombok.*;
 
@@ -94,11 +95,10 @@ public class ExpressionsVisitor extends Visitor {
             Type.DECIMAL, /* char / char */
     };
 
-    private static final Type[] STRING_ERROR_ASSIGN = {};
-
-    private static final Type[] DECIMAL_ERROR_ASSIGN = {Type.STRING};
+    private static final Type[] STRING_ERROR_ASSIGN = {Type.DECIMAL, Type.INT, Type.CHAR, Type.BOOLEAN};
+    private static final Type[] DECIMAL_ERROR_ASSIGN = {Type.STRING, Type.INT, Type.CHAR, Type.BOOLEAN};
     private static final Type[] BOOLEAN_ERROR_ASSIGN = {Type.STRING, Type.DECIMAL, Type.INT, Type.CHAR};
-    private static final Type[] INT_ERROR_ASSIGN = {Type.STRING};
+    private static final Type[] INT_ERROR_ASSIGN = {Type.STRING, Type.DECIMAL, Type.BOOLEAN};
     private static final Type[] CHAR_ERROR_ASSIGN = {Type.STRING, Type.DECIMAL, Type.BOOLEAN};
 
     public ExpressionsVisitor(String filename, SymTable ambit) {
@@ -126,7 +126,14 @@ public class ExpressionsVisitor extends Visitor {
             ErrorsLP.logError(node.loc,  "La operación " + node.getLeft().getType() + " " + node.getOperator() + " " + node.getRight().getType() + " no es posible");
         }
         else{
-            node.setType(newType);
+            if(node.getOp() != null && node.getOp().equals("-")){
+                if(newType != Type.INT && newType != Type.DECIMAL){
+                    ErrorsLP.logError(node.loc,  "La operación " + node.getOp() + " " + newType + " no es posible");
+                }
+                else node.setType(newType);
+            }
+            else node.setType(newType);
+
         }
     }
 
@@ -191,15 +198,27 @@ public class ExpressionsVisitor extends Visitor {
 
     @Override
     public void visitVariableDeclarator(VariableDeclarator node) {
-        System.out.println("si visita");
-        System.out.println(node.getText());
-        System.out.println(node.getType());
+        setTextVariableDeclarator(node);
         if(node.getInit() != null){
             var errorType = getErrorTypes(node.getType());
             if(errorType.length > 0 && node.getInit().getType() != null && contains(errorType, node.getInit().getType())){
                 ErrorsLP.logError(node.loc, "La asignación " + node.getType() + " = " + node.getInit().getType() + " no está permitida");
-
             }
+        }
+    }
+
+    private void setTextVariableDeclarator(VariableDeclarator node){
+        var id = node.getId().getName();
+        var loc = node.getLoc();
+        var type = node.getType().getTypeName();
+        String mode = "\" - \"";
+        if(node.isGlobal()) mode = "\"@global\"";
+        node.setText("var " + id + " = {v: " + node.getInit().getText() + "};");
+        var setVariable = "setVariable(\"" + id + "\", " + loc.line + ", " + loc.col +", \"" + type + "\", "+ id + ", " + mode + ", \""+ambit.getName()+"\", 1);";
+        node.setText(node.getText() + "\n" + setVariable);
+        if(node.isGlobal()){
+            StaticVariables.variables.add(node.getText());
+            node.setText(setVariable);
         }
     }
 
@@ -247,13 +266,12 @@ public class ExpressionsVisitor extends Visitor {
         if (castingList != null) {
             int index = getCombinationIndex(left.getType(), right.getType());
             if (index != -1) {
-                Type type = castingList[index];
-                return type != null ? type : null;
+                return castingList[index];
             }
         } else {
-            if (left.getType() == right.getType() ||
+            if (left.getType() == right.getType() /*||
                     (left.getType() == Type.INT && right.getType() == Type.DECIMAL) ||
-                    (left.getType() == Type.DECIMAL && right.getType() == Type.INT)) {
+                    (left.getType() == Type.DECIMAL && right.getType() == Type.INT)*/) {
                 return Type.BOOLEAN;
             }
         }

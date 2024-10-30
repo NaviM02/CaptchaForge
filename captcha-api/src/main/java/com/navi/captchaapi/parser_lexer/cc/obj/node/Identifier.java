@@ -7,7 +7,7 @@ import lombok.*;
 public class Identifier extends Node {
     private String name;
     public Identifier(Location loc, String name) {
-        super(loc, name);
+        super(loc, name+".v");
         this.name = name;
     }
 

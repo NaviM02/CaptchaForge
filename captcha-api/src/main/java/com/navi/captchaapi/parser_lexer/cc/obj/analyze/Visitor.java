@@ -31,12 +31,6 @@ public abstract class Visitor {
             case "Program":
                 visitProgram((Program) node);
                 break;
-            case "ImportDeclaration":
-                //visitImportDeclaration((ImportDeclaration) node);
-                break;
-            case "Incerteza":
-                //visitIncerteza((Incerteza) node);
-                break;
             case "Identifier":
                 visitIdentifier((Identifier) node);
                 break;
@@ -58,15 +52,6 @@ public abstract class Visitor {
             case "FunctionParam":
                 visitFunctionParam((FunctionParam) node);
                 break;
-            case "ReturnStmt":
-                //visitReturnStmt((ReturnStmt) node);
-                break;
-            case "ContinueStmt":
-                //visitContinueStmt((ContinueStmt) node);
-                break;
-            case "BreakStmt":
-                //visitBreakStmt((BreakStmt) node);
-                break;
             case "FunctionDeclaration":
                 visitFunctionDeclaration((FunctionDeclaration) node);
                 break;
@@ -82,43 +67,21 @@ public abstract class Visitor {
             case "WhileStmt":
                 visitWhileStmt((WhileStmt) node);
                 break;
-            case "Mostrar":
-                //visitMostrar((Mostrar) node);
-                break;
-            case "DibujarAST":
-                //visitDibujarAST((DibujarAST) node);
-                break;
-            case "DibujarEXP":
-                //visitDibujarEXP((DibujarEXP) node);
-                break;
-            case "DibujarTS":
-                //visitDibujarTS((DibujarTS) node);
-                break;
             default:
                 throw new IllegalArgumentException("Unknown node type: " + nodeName);
         }
     }
     // Métodos abstractos para cada tipo de nodo que serán implementados por subclases
-    //public abstract void visitBreakStmt(BreakStmt node);
     public abstract void visitFunctionDeclaration(FunctionDeclaration node);
-    //public abstract void visitFunctionMain(FunctionMain node);
     public abstract void visitIfStmt(IfStmt node);
     public abstract void visitForStmt(ForStmt node);
     public abstract void visitWhileStmt(WhileStmt node);
-    //public abstract void visitMostrar(Mostrar node);
-    //public abstract void visitDibujarAST(DibujarAST node);
-    //public abstract void visitDibujarEXP(DibujarEXP node);
-    //public abstract void visitDibujarTS(DibujarTS node);
     public abstract void visitBinaryExpression(BinaryExpression node);
     public abstract void visitUnaryExpression(UnaryExpression node);
     public abstract void visitAssignment(Assignment node);
     public abstract void visitCallFunction(CallFunction node);
     public abstract void visitFunctionParam(FunctionParam node);
-    //public abstract void visitReturnStmt(ReturnStmt node);
-    //public abstract void visitContinueStmt(ContinueStmt node);
     public abstract void visitIdentifier(Identifier node);
     public abstract void visitVariableDeclarator(VariableDeclarator node);
     public abstract void visitProgram(Program node);
-    //public abstract void visitImportDeclaration(ImportDeclaration node);
-    //public abstract void visitIncerteza(Incerteza node);
 }

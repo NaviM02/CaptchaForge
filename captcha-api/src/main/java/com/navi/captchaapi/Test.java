@@ -5,6 +5,7 @@ import com.navi.captchaapi.data.Connection;
 import com.navi.captchaapi.model.Captcha;
 import com.navi.captchaapi.parser_lexer.ErrorsLP;
 import com.navi.captchaapi.parser_lexer.cc.Compile;
+import com.navi.captchaapi.parser_lexer.cc.obj.StaticVariables;
 import com.navi.captchaapi.parser_lexer.cc.obj.analyze.SymTableGlobalVisitor;
 
 public class Test {
@@ -19,7 +20,7 @@ public class Test {
                 <C_TITLE> Mi primer Captcha Matemático</C_TITLE>\s
                 </C_HEAD>\s
                 !! El cuerpo de la página\s
-                <C_BODY [background= "#e5e6ea"] >\s
+                <C_BODY [background= "#e5e6ea"]>\s
                 !! un título simple estilizado\s
                 <C_H1 [id= "title_1"] [text-align= "center"] [color= "#7eff33"] > Mi primer Captcha Matemático\s
                 </C_H1>\s
@@ -77,20 +78,10 @@ public class Test {
         Compile.compile(text);
 
         ErrorsLP.getErrors().forEach(System.out::println);
-        Connection.createDB();
-        CaptchaDAO captchaDAO = new CaptchaDAO();
 
         if(ErrorsLP.getErrors().isEmpty()){
             var parser = Compile.parser;
             var label = Compile.parser.label;
-/*
-            String staticVars = "";
-            for(String var : parser.staticVariables){
-                staticVars += var + ";\n";
-            }
-            String script = "<script>\n" + staticVars + label.functions() + Compile.parser.program.getScript() + "</script>";
-            String html = label.toHtml(new StringBuilder(script));
-*/
 
             //var newCaptcha = new Captcha(label.getId(), label.getName(), html);
             //var newCaptcha = new Captcha("", "", html);
@@ -104,7 +95,12 @@ public class Test {
 
             globalSymT.visit(program);
             ErrorsLP.getErrors().forEach(System.out::println);
+
+            /*String script = "<script>\nvar globalVariables = [];\n" + StaticVariables.getVariables() + label.functions() + program.getScript() + "</script>";
+            String html = label.toHtml(new StringBuilder(script));
+            System.out.println(script);*/
         }
 
     }
+
 }

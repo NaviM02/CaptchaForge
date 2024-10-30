@@ -11,7 +11,6 @@ parser code
 
     public Label label = new Label();
     public Program program = new Program(new Location(0,0), new ArrayList<>());
-    public ArrayList<String> staticVariables = new ArrayList<>();
 
     boolean hasHref, hasBackground, hasColor, hasFontSize, hasFontFamily, hasTextAlign, hasType, hasId, hasName, hasCols, hasRows, hasClass, hasSrc, hasWidth, hasHeight, hasAlt, hasOnclick;
 
@@ -42,6 +41,13 @@ parser code
 
         return (possibleCondition && other) || allFalse();
     }
+    public void errorsCC(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        if(p.getType() != Parameter.ID && p.getType() != Parameter.NAME){
+          addPError(p.getTypeStr(), p.getLoc());
+        }
+      }
+    }
     public boolean validateBody(){
       boolean possibleCondition = hasBackground;
       boolean other = !(hasHref || hasColor || hasFontSize || hasFontFamily ||
@@ -49,6 +55,13 @@ parser code
               hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
 
       return (possibleCondition && other) || allFalse();
+    }
+    public void errorsBody(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        if(p.getType() != Parameter.BACKGROUND){
+          addPError(p.getTypeStr(), p.getLoc());
+        }
+      }
     }
     public boolean validateLink(){
       boolean possibleCondition = hasHref;
@@ -58,6 +71,13 @@ parser code
 
       return (possibleCondition && other) || allFalse();
     }
+    public void errorsLink(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        if(p.getType() != Parameter.HREF){
+          addPError(p.getTypeStr(), p.getLoc());
+        }
+      }
+    }
     public boolean validateSpanSelectH1P(){
       boolean possibleCondition = hasColor || hasFontFamily || hasFontSize || hasTextAlign || hasId;
       boolean other = !(hasHref || hasBackground ||
@@ -65,6 +85,14 @@ parser code
               hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
 
       return (possibleCondition && other) || allFalse();
+    }
+    public void errorsSpanSelectH1P(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        switch (p.getType()){
+          case Parameter.COLOR, Parameter.FONT_FAMILY, Parameter.FONT_SIZE, Parameter.TEXT_ALIGN, Parameter.ID -> {}
+          default -> { addPError(p.getTypeStr(), p.getLoc());}
+        }
+      }
     }
     public boolean validateInput(){
       boolean possibleCondition = hasColor || hasFontFamily || hasFontSize || hasTextAlign || hasId || hasType;
@@ -74,6 +102,14 @@ parser code
 
       return (possibleCondition && other) || allFalse();
     }
+    public void errorsInput(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        switch (p.getType()){
+          case Parameter.COLOR, Parameter.FONT_FAMILY, Parameter.FONT_SIZE, Parameter.TEXT_ALIGN, Parameter.ID, Parameter.TYPE -> {}
+          default -> { addPError(p.getTypeStr(), p.getLoc());}
+        }
+      }
+    }
     public boolean validateTextArea(){
       boolean possibleCondition = hasFontFamily || hasFontSize || hasTextAlign || hasId || hasCols || hasRows;
       boolean other = !(hasHref || hasBackground || hasColor ||
@@ -81,6 +117,14 @@ parser code
               hasClass || hasSrc || hasWidth || hasHeight || hasAlt || hasOnclick);
 
       return (possibleCondition && other) || allFalse();
+    }
+    public void errorsTextArea(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        switch (p.getType()){
+          case Parameter.FONT_FAMILY, Parameter.FONT_SIZE, Parameter.TEXT_ALIGN, Parameter.ID, Parameter.COLS, Parameter.ROWS -> {}
+          default -> { addPError(p.getTypeStr(), p.getLoc());}
+        }
+      }
     }
     public boolean validateDiv(){
       boolean possibleCondition = hasBackground || hasFontFamily || hasFontSize || hasTextAlign || hasId || hasClass || hasColor;
@@ -90,6 +134,14 @@ parser code
 
       return (possibleCondition && other) || allFalse();
     }
+    public void errorsDiv(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        switch (p.getType()){
+          case Parameter.BACKGROUND, Parameter.FONT_FAMILY, Parameter.FONT_SIZE, Parameter.TEXT_ALIGN, Parameter.ID, Parameter.CLASS, Parameter.COLOR -> {}
+          default -> { addPError(p.getTypeStr(), p.getLoc());}
+        }
+      }
+    }
     public boolean validateImg(){
       boolean possibleCondition = hasSrc || hasWidth || hasHeight || hasAlt || hasId;
       boolean other = !(hasHref || hasBackground || hasColor || hasFontSize || hasFontFamily ||
@@ -98,6 +150,14 @@ parser code
 
       return (possibleCondition && other) || allFalse();
     }
+    public void errorsImg(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        switch (p.getType()){
+          case Parameter.SRC, Parameter.WIDTH, Parameter.HEIGHT, Parameter.ALT, Parameter.ID -> {}
+          default -> { addPError(p.getTypeStr(), p.getLoc());}
+        }
+      }
+    }
     public boolean validateButton(){
       boolean possibleCondition = hasFontSize || hasFontFamily || hasTextAlign || hasId || hasColor || hasBackground || hasOnclick;
       boolean other = !(hasHref ||
@@ -105,6 +165,14 @@ parser code
               hasClass || hasSrc || hasWidth || hasHeight || hasAlt);
 
       return (possibleCondition && other) || allFalse();
+    }
+    public void errorsButton(ArrayList<Parameter> parameters){
+      for(Parameter p: parameters){
+        switch (p.getType()){
+          case Parameter.COLOR, Parameter.FONT_FAMILY, Parameter.FONT_SIZE, Parameter.TEXT_ALIGN, Parameter.ID, Parameter.BACKGROUND, Parameter.ONCLICK -> {}
+          default -> { addPError(p.getTypeStr(), p.getLoc());}
+        }
+      }
     }
     private boolean allFalse(){
         return !(hasHref || hasBackground || hasColor || hasFontSize || hasFontFamily ||
@@ -115,6 +183,7 @@ parser code
         super(lex);
         //resetBooleans();
     }
+    public List<String> ids = new ArrayList<>();
     //Metodo al que se llama ante algun error sintactico
     public void syntax_error(Symbol s){
         String lexeme = "";
@@ -172,6 +241,16 @@ parser code
         if(des.length() > 3) des = des.substring(0, des.length() - 3);
         addError(lexeme, line, col, des);
     }
+    private static final String ID_PATTERN = "^[\\w$-][\\w\\d$-]*$";
+    private void addId(String id, Location loc) {
+            if (!id.matches(ID_PATTERN)) {
+                ErrorsLP.addError(id, loc.line, loc.col, "Error Sintáctico", "El id no cumple con el formato requerido");
+                return;
+            }
+            if (ids.contains(id)) ErrorsLP.addError(id, loc.line, loc.col, "Error Sintáctico", "El id de la etiqueta está repetido");
+            else ids.add(id);
+
+        }
 
     private void addError(String lexeme, int line, int col, String description){
         ErrorsLP.addError(lexeme, line, col, "Error Sintáctico", description);
@@ -180,8 +259,8 @@ parser code
     private void addParameterError(String type, int line, int col){
         ErrorsLP.addError(type, line, col, "Semántico", "Parametro " + type + " duplicado");
     }
-    private void addPError(String type, int line, int col){
-        ErrorsLP.addError(type, line, col, "Semántico", "Parametro " + type + " no esperado");
+    private void addPError(String type, Location loc){
+        ErrorsLP.addError(type, loc.line, loc.col, "Semántico", "Parametro " + type + " no esperado");
     }
     protected int error_sync_size() {
             return 1;
@@ -190,12 +269,10 @@ parser code
 
 terminal C_CC, C_HEAD, C_TITLE, C_LINK, C_BODY, C_SPAM, C_INPUT, C_TEXTAREA, C_SELECT, C_OPTION,
         C_DIV, C_IMG, C_BR, C_BUTTON, C_H1, C_P, C_SCRIPTING,
-        HREF, BACKGROUND, COLOR, FONT_SIZE, FONT_FAMILY, TEXT_ALIGN, TYPE, ID, NAME, COLS, ROWS,
-        CLASS, SRC, WIDTH, HEIGHT, ALT, ONCLICK,
-        INTEGER, DECIMAL, BOOLEAN, CHAR, STRING,
-        INIT, END, IF, THEN, ELSE, REPEAT, HUNTIL, WHILE, THENWHILE, TRUE, FALSE,
-        LT, GT
 
+        CLASS, SRC, WIDTH, HEIGHT, ALT, ONCLICK,
+        INIT, END, IF, THEN, ELSE, REPEAT, HUNTIL, WHILE, THENWHILE,
+        LT, GT
         ;
 
 terminal String STRING_LITERAL, SIMPLE_STRING, NUMBER, CHAR_LITERAL,
@@ -205,10 +282,13 @@ terminal String STRING_LITERAL, SIMPLE_STRING, NUMBER, CHAR_LITERAL,
                 ALERT_INFO, EXIT, REDIRECT,
                 PLUS, MINUS, TIMES, SLASH, LPAREN, RPAREN,
                 COLON, SEMICOLON, COMMA, VERTICAL_BAR,
-                REL_OP, OR, AND, NOT, LBRACKET, RBRACKET, LBRACE, RBRACE
+                REL_OP, OR, AND, NOT, LBRACKET, RBRACKET, LBRACE, RBRACE,
+                INTEGER, DECIMAL, BOOLEAN, CHAR, STRING ,TRUE, FALSE,
+                HREF, BACKGROUND, COLOR, FONT_SIZE, FONT_FAMILY, TEXT_ALIGN, TYPE, ID, NAME, COLS, ROWS
                 ;
 
 non terminal s;
+non terminal Label s_otp;
 non terminal Label cc;
 non terminal ArrayList<Parameter> open_cc, open_head, open_body, open_title, open_link, open_spam, open_input, open_textarea, open_select, open_option, open_div, open_img, open_br, open_button, open_h1, open_p, open_scripting;
 non terminal close_cc, close_head, close_body, close_title, close_link, close_spam, close_input, close_textarea, close_select, close_option, close_div, close_img, close_button, close_h1, close_p, close_scripting;
@@ -260,7 +340,7 @@ non terminal Expr conditional_and_expression;
 non terminal Expr relational_expression;
 non terminal Expr additive_expression;
 non terminal Expr multiplicative_expression;
-non terminal UnaryExpression unary_expression;
+non terminal Expr unary_expression;
 non terminal UnaryExpression value_literal;
 non terminal String string_literal;
 non terminal String char_literal;
@@ -273,32 +353,50 @@ non terminal String string_text;
 
 start with s;
 
-s ::= cc:c
+s ::= s_otp:c
     {:
     label = c;
     :}
-    | body_label:l
+    | c_body:l
     {:
     label = (Label) l;
     :}
     ;
+
+s_otp ::= cc:cc {: RESULT = cc; :}
+        | c_scripting
+        | s_otp cc
+        ;
+
 /* Open labels */
-open_cc         ::= LT C_CC parameters_opt:p GT             {: RESULT = p; :};
+open_cc         ::= LT C_CC parameters_opt:p GT             {: if(!validateCC()) errorsCC(p);
+resetBooleans(); RESULT = p; :};
 open_head       ::= LT C_HEAD GT                            {: RESULT = new ArrayList<>(); :};
-open_body       ::= LT C_BODY parameters_opt:p GT           {: RESULT = p; :};
+open_body       ::= LT C_BODY parameters_opt:p GT           {: if(!validateBody()) errorsBody(p);
+resetBooleans(); RESULT = p; :};
 open_title      ::= LT C_TITLE GT                           {: RESULT = new ArrayList<>(); :};
-open_link       ::= LT C_LINK parameters_opt:p GT           {: RESULT = p; :};
-open_spam       ::= LT C_SPAM parameters_opt:p GT           {: RESULT = p; :};
-open_input      ::= LT C_INPUT parameters_opt:p GT          {: RESULT = p; :};
-open_textarea   ::= LT C_TEXTAREA parameters_opt:p C_CC GT  {: RESULT = p; :};
-open_select     ::= LT C_SELECT parameters_opt:p GT         {: RESULT = p; :};
-open_option     ::= LT C_OPTION parameters_opt:p GT         {: RESULT = p; :};
-open_div        ::= LT C_DIV parameters_opt:p GT            {: RESULT = p; :};
-open_img        ::= LT C_IMG parameters_opt:p GT            {: RESULT = p; :};
+open_link       ::= LT C_LINK parameters_opt:p GT           {: if(!validateLink()) errorsLink(p);
+resetBooleans(); RESULT = p; :};
+open_spam       ::= LT C_SPAM parameters_opt:p GT           {: if(!validateSpanSelectH1P()) errorsSpanSelectH1P(p);
+resetBooleans(); RESULT = p; :};
+open_input      ::= LT C_INPUT parameters_opt:p GT          {: if(!validateInput()) errorsInput(p);
+resetBooleans(); RESULT = p; :};
+open_textarea   ::= LT C_TEXTAREA parameters_opt:p C_CC GT  {: if(!validateTextArea()) errorsTextArea(p);
+resetBooleans(); RESULT = p; :};
+open_select     ::= LT C_SELECT parameters_opt:p GT         {: if(!validateSpanSelectH1P()) errorsSpanSelectH1P(p);
+resetBooleans(); RESULT = p; :};
+open_option     ::= LT C_OPTION GT                          {: RESULT = new ArrayList<>(); :};
+open_div        ::= LT C_DIV parameters_opt:p GT            {: if(!validateDiv()) errorsDiv(p);
+resetBooleans(); RESULT = p; :};
+open_img        ::= LT C_IMG parameters_opt:p GT            {: if(!validateImg()) errorsImg(p);
+resetBooleans(); RESULT = p; :};
 open_br         ::= LT C_BR GT                              {: RESULT = new ArrayList<>(); :};
-open_button     ::= LT C_BUTTON parameters_opt:p GT         {: RESULT = p; :};
-open_h1         ::= LT C_H1 parameters_opt:p GT             {: RESULT = p; :};
-open_p          ::= LT C_P parameters_opt:p GT              {: RESULT = p; :};
+open_button     ::= LT C_BUTTON parameters_opt:p GT         {: if(!validateButton()) errorsButton(p);
+resetBooleans(); RESULT = p; :};
+open_h1         ::= LT C_H1 parameters_opt:p GT             {: if(!validateSpanSelectH1P()) errorsSpanSelectH1P(p);
+resetBooleans(); RESULT = p; :};
+open_p          ::= LT C_P parameters_opt:p GT              {: if(!validateSpanSelectH1P()) errorsSpanSelectH1P(p);
+resetBooleans(); RESULT = p; :};
 open_scripting  ::= LT C_SCRIPTING GT                       {: RESULT = new ArrayList<>(); :};
 /* Close labels */
 close_cc        ::= LT SLASH C_CC GT;
@@ -322,6 +420,7 @@ cc ::= open_cc:p c_cc_body:l close_cc
         {:
         RESULT = new Label(pleft, pright, Label.HTML, p, l);
         :}
+        | error
         ;
 
 c_cc_body ::= c_head:h c_body:b
@@ -621,7 +720,10 @@ parameter ::= href:p
             :}
             | id:p
             {:
-            if(!hasId) hasId = true;
+            if(!hasId) {
+                addId(p.getValue(), p.getLoc());
+                hasId = true;
+            }
             else addParameterError(p.getTypeStr(), pleft, pright);
             RESULT = p;
             :}
@@ -682,7 +784,7 @@ parameter ::= href:p
             ;
 
 href ::= LBRACKET HREF EQUAL string_literal:s RBRACKET
-        {: staticVariables.add("let url = '" + s + "'");
+        {: StaticVariables.variables.add("var url = '" + s + "'");
         RESULT = new Parameter(sleft, sright, Parameter.HREF, s); :};
 
 background ::= LBRACKET BACKGROUND EQUAL string_literal:s RBRACKET
@@ -770,7 +872,7 @@ variable_declarators ::= variable_type:t GLOBAL variable_declarator:vs
                         for(VariableDeclarator v: vs){
                             v.setType(t);
                             v.setGlobal(true);
-                            staticVariables.add("let "+v.getText());
+                            //StaticVariables.variables.add("let "+v.getText());
                             v.setText("");
                         }
                         RESULT = vs;
@@ -1056,14 +1158,21 @@ unary_expression ::= value_literal:v
                     {:RESULT = new UnaryExpression(new Location(vleft, vright), v.getText(), null, null, v); :}
                     | MINUS unary_expression:v
                     {:
-                    v.setOperator("-");
-                    v.setText("-"+v.getText());
-                    RESULT = v;
+                    if(v instanceof UnaryExpression unary){
+                        unary.setOperator("-");
+                        unary.setText("-"+unary.getText());
+                        RESULT = unary;
+                    }
+                    else if(v instanceof BinaryExpression binary){
+                        binary.setOp("-");
+                        binary.setText("-"+v.getText());
+                        RESULT = binary;
+                    }
                     :}
                     | LPAREN expression:v RPAREN
                     {:
                     v.setText("("+v.getText()+")");
-                    RESULT = (UnaryExpression) v;
+                    RESULT = v;
                     :}
                     ;
 
@@ -1085,7 +1194,7 @@ value_literal ::= string_literal:v
                 {:RESULT = new UnaryExpression(new Location(vleft, vright), "false", Type.BOOLEAN, null, false);:}
                 ;
 
-string_literal ::= STRING_LITERAL:s {: RESULT = s.replaceAll("\"", "").replaceAll("\n", "\\n"); :}
+string_literal ::= STRING_LITERAL:s {: RESULT = s.replaceAll("\"", "").replaceAll("\n", "\\\n"); :}
                 ;
 
 char_literal ::= CHAR_LITERAL:c {: RESULT = c.replaceAll("'", ""); :}
@@ -1119,6 +1228,38 @@ text ::= TEXT:t             {: RESULT = t; :}
         | RBRACKET:t        {: RESULT = t; :}
         | LBRACE:t          {: RESULT = t; :}
         | RBRACE:t          {: RESULT = t; :}
+        | INSERT:t          {: RESULT = t; :}
+        | ON_LOAD:t          {: RESULT = t; :}
+        | GET_ELEMENT_BY_ID:t          {: RESULT = t; :}
+        | GLOBAL:t          {: RESULT = t; :}
+        | ASC:t          {: RESULT = t; :}
+        | DESC:t          {: RESULT = t; :}
+        | LETPAR_NUM:t          {: RESULT = t; :}
+        | LETIMPAR_NUM:t          {: RESULT = t; :}
+        | REVERSE:t          {: RESULT = t; :}
+        | CARACTER_ALEATORIO:t          {: RESULT = t; :}
+        | NUM_ALEATORIO:t          {: RESULT = t; :}
+        | ALERT_INFO:t          {: RESULT = t; :}
+        | EXIT:t          {: RESULT = t; :}
+        | REDIRECT:t          {: RESULT = t; :}
+        | INTEGER:t          {: RESULT = t; :}
+        | DECIMAL:t          {: RESULT = t; :}
+        | BOOLEAN:t          {: RESULT = t; :}
+        | CHAR:t          {: RESULT = t; :}
+        | STRING:t          {: RESULT = t; :}
+        | TRUE:t          {: RESULT = t; :}
+        | FALSE:t          {: RESULT = t; :}
+        | HREF:t          {: RESULT = t; :}
+        | BACKGROUND:t          {: RESULT = t; :}
+        | COLOR:t          {: RESULT = t; :}
+        | FONT_SIZE:t          {: RESULT = t; :}
+        | FONT_FAMILY:t          {: RESULT = t; :}
+        | TEXT_ALIGN:t          {: RESULT = t; :}
+        | TYPE:t          {: RESULT = t; :}
+        | ID:t          {: RESULT = t; :}
+        | NAME:t          {: RESULT = t; :}
+        | COLS:t          {: RESULT = t; :}
+        | ROWS:t          {: RESULT = t; :}
         ;
 
 string_text ::= text:t

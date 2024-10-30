@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter @Setter
 public class BinaryExpression extends Expr {
+    private String op;
     private Expr left;
     private String operator;
     private Expr right;

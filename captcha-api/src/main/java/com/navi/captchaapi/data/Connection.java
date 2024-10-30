@@ -98,11 +98,19 @@ public class Connection {
         return position + (column - 1);
     }
 
-    public static void insertTextUser(int position, String textToInsert){
+    private static void createHtmlFile(File captchasFolder, String fileName, String content) throws IOException {
+        File htmlFile = new File(captchasFolder, fileName+".html");
+        try (FileWriter writer = new FileWriter(htmlFile)) {
+            writer.write(content);
+        }
+    }
+    public static void insertTextUser(int position, String textToInsert, String name, String html){
         File userHome = new File(System.getProperty("user.home"));
         String appFolderName = "Captchas/captchas.db";
         File appFolder = new File(userHome, appFolderName);
+        File captchasFolder = new File(userHome, "Captchas");
         try {
+            createHtmlFile(captchasFolder,name,html);
             insertTextAtPosition(appFolder, position, textToInsert);
         } catch (IOException e) {
             throw new RuntimeException(e);

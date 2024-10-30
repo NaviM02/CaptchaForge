@@ -36,12 +36,15 @@ public class WhileStmt extends Node implements TableHolder {
             visitor.visit(this);
         }
     }
-    private void setTextNode(List<Node> body, Expr test) {
+    public void setTextNode(List<Node> body, Expr test) {
         StringBuilder sb = new StringBuilder();
 
         for(Node n: body){
-            sb.append("\t").append(n.getText()).append('\n');
+            sb.append(addTabs(n.getText()));
         }
         this.setText("while("+test.getText()+"){\n"+ sb + "}");
+    }
+    public static String addTabs(String text) {
+        return FunctionDeclaration.addTabs(text);
     }
 }

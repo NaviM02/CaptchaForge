@@ -19,7 +19,7 @@ public class CaptchaDAO {
         return null;
     }
 
-    public void insertCaptcha(Captcha captcha){
+    public boolean insertCaptcha(Captcha captcha){
         boolean valid = true;
         DBParser parser = Connection.connectDB();
         ArrayList<String> ids = parser.ids;
@@ -35,14 +35,16 @@ public class CaptchaDAO {
             if(captcha.getId().isEmpty()) captcha.setId("captchaCC__" + (ids.size() + 1));
             if(captcha.getName().isEmpty()) captcha.setName("captchaCC__" + (ids.size() + 1));
             int position = Connection.calculatePosition(Connection.text, finalPos.getLine1(), finalPos.getCol1());
-            String insertText = captcha.dbString() + "\n";
+            String insertText = captcha.dbStringInsert() + "\n";
             if(!ids.isEmpty()) insertText = ",\n"+insertText;
 
-            Connection.insertTextUser(position, insertText);
+            Connection.insertTextUser(position, insertText, captcha.getId(), captcha.getHtml());
+            return true;
         }
         else{
             ErrorsLP.logError(new Location(0, 0), "Captcha ya existente (" + captcha.getId() + ")");
             System.out.println("Captcha ya existente");
+            return false;
         }
     }
     public void updateUser(Captcha captcha){

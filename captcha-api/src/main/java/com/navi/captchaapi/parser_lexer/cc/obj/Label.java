@@ -1,7 +1,6 @@
 package com.navi.captchaapi.parser_lexer.cc.obj;
 import lombok.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 @Getter @Setter @ToString
@@ -56,7 +55,7 @@ public class Label {
 
     public String toHtml(StringBuilder script){
         boolean isBody = false;
-        parameters.forEach(Parameter::getParam);
+        parameters.forEach(Parameter::getParamStyle);
         StringBuilder html = new StringBuilder();
         if(this.type != INPUT && this.type != BR){
             html.append("<").append(LABELS[type-1].toLowerCase()).append(" ").append(paramsText()).append(">\n");
@@ -84,6 +83,16 @@ public class Label {
         return html.toString();
     }
     public String functions(){
+        String setVariable = """
+                function setVariable(id, line, col, type, value, mode, procedure, execution) {
+                    const existingVariable = globalVariables.find(variable => variable.id === id && variable.procedure === procedure);
+                    if (existingVariable) {
+                    existingVariable.execution += 1;
+                    } else {
+                    globalVariables.push({ id, line, col, type, value, mode, procedure, execution });
+                    }
+                }
+                """;
         String insert = """
                 function INSERT(text) {
                     const container = document.getElementById('captcha-container');
@@ -147,19 +156,39 @@ public class Label {
                   alert(msj);
                 }
                 """;
-        String exit = """
-                function EXIT() {
-                  return;
-                }
-                """;
         String redirect = """
                 function REDIRECT() {
-                  window.location.href = url;
+                  if (typeof window.beforeRedirect === 'function') {
+                    window.beforeRedirect(url);
+                  }
                 }
                 """;
-        return insert + asc + desc + letPar + letNotPar + reverse + randomChar + randomNum + alertInfo + exit + redirect;
+        String show = """
+                function show() {
+                    const table = document.getElementById("variables-table").getElementsByTagName('tbody')[0];
+                    table.innerHTML = "";
+            
+                    globalVariables.forEach((variable, index) => {
+                        const row = table.insertRow();
+            
+                        row.insertCell().textContent = index + 1;
+                        row.insertCell().textContent = variable.id;
+                        row.insertCell().textContent = variable.line;
+                        row.insertCell().textContent = variable.col;
+                        row.insertCell().textContent = variable.type;
+                        row.insertCell().textContent = variable.value?.v !== undefined ? variable.value.v : variable.value;
+                        row.insertCell().textContent = variable.mode;
+                        row.insertCell().textContent = variable.procedure.startsWith("funcion ")
+                        ? variable.procedure.slice(8)
+                        : variable.procedure;
+                        row.insertCell().textContent = variable.execution;
+                    });
+                    console.log(globalVariables);
+                }
+                """;
+        return setVariable + insert + asc + desc + letPar + letNotPar + reverse + randomChar + randomNum + alertInfo + redirect + show;
     }
-    public String paramsText(){
+    public String paramsText()  {
         StringBuilder params = new StringBuilder();
         String initStyle = "";
         String endStyle = "\"";
@@ -174,8 +203,10 @@ public class Label {
             default -> initStyle = "style = \"padding: 3px; margin 10px; ";
         }
         for (Parameter parameter : parameters){
-            if(parameter.getType() == Parameter.ID || parameter.getType() == Parameter.HREF || parameter.getType() == Parameter.NAME || parameter.getType() == Parameter.ONCLICK){
-                params.append(parameter.getId()).append(" ");
+            if(parameter.getType() == Parameter.ID || parameter.getType() == Parameter.HREF ||
+                    parameter.getType() == Parameter.NAME || parameter.getType() == Parameter.ONCLICK ||
+                    parameter.getType() == Parameter.ALT || parameter.getType() == Parameter.SRC){
+                params.append(parameter.getParamLabel()).append(" ");
             }
             else{
                 if(parameter.getType() == Parameter.CLASS){
@@ -183,7 +214,7 @@ public class Label {
                     if(val.equals("row")) params.append("flex-direction: row");
                     else params.append("flex-direction: column");
                 }
-                else style.append(parameter.getParam()).append(" ");
+                else style.append(parameter.getParamStyle()).append(" ");
             }
         }
         return params + initStyle + style + endStyle;
@@ -205,6 +236,45 @@ public class Label {
     public String generalStyle(){
         return """
                 <style>
+                    textarea {
+                        width: 100%;
+                        padding: 10px;
+                        font-size: 16px;
+                        font-family: Arial, sans-serif;
+                        color: #333;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        resize: vertical; /* Permite cambiar solo el alto */
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+                
+                    textarea:focus {
+                        outline: none;
+                        border-color: #1abc9c; /* Color verde Miku */
+                        box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+                    }
+                    select {
+                        width: 100%;
+                        padding: 10px;
+                        font-size: 16px;
+                        font-family: Arial, sans-serif;
+                        color: #333;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        background-color: #fff;
+                        appearance: none; 
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+                
+                    select:focus {
+                        outline: none;
+                        border-color: #1abc9c;
+                        box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+                    }
+                
+                    select option {
+                        padding: 10px;
+                    }
                     button {
                         margin: 10px;
                         padding: 10px 20px;
@@ -221,6 +291,28 @@ public class Label {
                     button:hover {
                         background-color: #5ee5d5;
                         box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+                    }
+                    input {
+                      width: 35%;
+                      padding: 12px 15px;
+                      margin: 10px 0;
+                      border: 2px solid #1abc9c;
+                      border-radius: 4px;
+                      font-size: 16px;
+                      color: #34495e;
+                      background-color: #f5f5dc;\s
+                      transition: border-color 0.3s ease;
+                    }
+                
+                    input:focus {
+                      outline: none;
+                      border-color: #16a085;\s
+                      box-shadow: 0 0 5px rgba(22, 160, 133, 0.5);\s
+                    }
+                
+                    input::placeholder {
+                      color: #7f8c8d;\s
+                      opacity: 1;\s
                     }
                 </style>
                 """;

@@ -1,5 +1,6 @@
 package com.navi.captchaapi.parser_lexer.cc.obj;
 import lombok.*;
+import static com.navi.captchaapi.parser_lexer.cc.obj.Validator.*;
 
 @Getter @Setter @ToString
 @AllArgsConstructor
@@ -35,13 +36,13 @@ public class Parameter {
         this.loc = new Location(line, col);
         this.type = type;
         this.value = value;
-
+        validate();
     }
-    public String getParam(){
+    public String getParamStyle(){
         //System.out.println(PARAMETERS[type-1] + " = \"" + value + "\"");
         return PARAMETERS[type-1] + ": " + value + ";";
     }
-    public String getId(){
+    public String getParamLabel(){
         //System.out.println(PARAMETERS[type-1] + " = \"" + value + "\"");
         return PARAMETERS[type-1] + " = \"" + value + "\"";
     }
@@ -49,11 +50,23 @@ public class Parameter {
         return PARAMETERS[type-1];
     }
 
-    public void defaultParam(){
-        switch (type) {
-            case COLOR -> {
+    private void validate(){
+        switch (type){
+            case BACKGROUND, COLOR -> value = validateColor(value, loc.line, loc.col);
 
-            }
+            case FONT_SIZE-> validatePixels(value, loc.line, loc.col);
+
+            case FONT_FAMILY -> isValidFont(value, loc.line, loc.col);
+
+            case TEXT_ALIGN -> isValidAlignment(value, loc.line, loc.col);
+
+            case TYPE -> isValidInputType(value, loc.line, loc.col);
+
+            case COLS, ROWS -> isValidInteger(value, loc.line, loc.col);
+
+            case CLASS -> isValidClass(value, loc.line, loc.col);
+
+            case WIDTH, HEIGHT -> isValidDimension(value, loc.line, loc.col);
         }
     }
 }

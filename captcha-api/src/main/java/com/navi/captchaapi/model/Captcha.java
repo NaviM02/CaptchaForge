@@ -28,7 +28,7 @@ public class Captcha {
         this.lastUse = null;
     }
 
-    public String dbString(){
+    public String dbStringInsert(){
         String encodedHtml = Base64.getEncoder().encodeToString(html.getBytes());
         return "{\n" +
                 "\t\"ID\":\"" + id + "\",\n"+
@@ -38,6 +38,18 @@ public class Captcha {
                 "\t\"FALLOS\":" + fails + ",\n"+
                 "\t\"ULTIMO_USO\":\"" + dateToString(lastUse) + "\",\n" +
                 "\t\"HTML\":\"" + encodedHtml + "\"\n"+
+                "}"
+                ;
+    }
+    public String dbString(){
+        return "{\n" +
+                "\t\"ID\":\"" + id + "\",\n"+
+                "\t\"NOMBRE\":\"" + name + "\",\n"+
+                "\t\"USADO\":" + timesUsed + ",\n"+
+                "\t\"ACIERTOS\":" + successes + ",\n"+
+                "\t\"FALLOS\":" + fails + ",\n"+
+                "\t\"ULTIMO_USO\":\"" + dateToString(lastUse) + "\",\n" +
+                "\t\"HTML\":\"" + html + "\"\n"+
                 "}"
                 ;
     }

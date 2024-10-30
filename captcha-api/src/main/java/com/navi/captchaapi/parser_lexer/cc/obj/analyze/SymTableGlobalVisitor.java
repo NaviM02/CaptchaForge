@@ -57,7 +57,7 @@ public class SymTableGlobalVisitor extends Visitor {
                 }
             } else if (child instanceof Assignment) {
                 checkUndefined.visit((Assignment) child);
-                // (child as Assignment).accept(checkUndefined, null);
+                ((Assignment) child).accept(checkUndefined, null);
             }
         }
 

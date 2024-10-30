@@ -1,5 +1,6 @@
 package com.navi.captchaapi.parser_lexer.cc.obj.node;
 import com.navi.captchaapi.parser_lexer.cc.obj.Location;
+import com.navi.captchaapi.parser_lexer.cc.obj.StaticVariables;
 import com.navi.captchaapi.parser_lexer.cc.obj.analyze.SymTableVisitor;
 import com.navi.captchaapi.parser_lexer.cc.obj.analyze.Visitor;
 import com.navi.captchaapi.parser_lexer.cc.obj.node.interfaces.TableHolder;
@@ -30,7 +31,7 @@ public class IfStmt extends Node implements TableHolder {
     }
     public IfStmt(Location loc, Expr test, List<Node> consequent, List<IfStmt> elseIf, List<Node> alternate) {
         super(loc, "");
-        this.setTextNode(test, consequent, elseIf, alternate);
+        //this.setTextNode(test, consequent, elseIf, alternate);
         this.test = test;
         this.consequent = consequent;
         this.elseIf = elseIf;
@@ -55,7 +56,9 @@ public class IfStmt extends Node implements TableHolder {
             for (Node child : alternate) {
                 child.accept(visitor, tableAlternate);
             }
-            System.out.println(test.getText());
+            for (IfStmt child : elseIf) {
+                child.accept(visitor, table);
+            }
             test.accept(visitor, ambit);
             visitor.visit(this);
         }
@@ -65,10 +68,10 @@ public class IfStmt extends Node implements TableHolder {
     public List<Node> getBody() {
         return null;
     }
-    private void setTextNode(Expr test, List<Node> consequent, List<IfStmt> elseIf, List<Node> alternate) {
+    public void setTextNode(Expr test, List<Node> consequent, List<IfStmt> elseIf, List<Node> alternate) {
         StringBuilder sb1 = new StringBuilder();
         for (Node node : consequent) {
-            sb1.append("\t").append(node.getText()).append("\n");
+            sb1.append(addTabs(node.getText()));
         }
         StringBuilder sb2 = new StringBuilder();
         StringBuilder sb3 = new StringBuilder();
@@ -76,7 +79,7 @@ public class IfStmt extends Node implements TableHolder {
             for (IfStmt node : elseIf) {
                 sb2.append("else if(").append(node.getTest().getText()).append("){\n");
                 for (Node n : node.getConsequent()) {
-                    sb2.append("\t").append(n.getText()).append("\n");
+                    sb2.append(addTabs(n.getText()));
                 }
                 sb2.append("}");
             }
@@ -84,11 +87,13 @@ public class IfStmt extends Node implements TableHolder {
         if(!alternate.isEmpty()) {
             sb3.append("else{\n");
             for (Node node : alternate) {
-                sb3.append("\t").append(node.getText()).append("\n");
+                sb3.append(addTabs(node.getText()));
             }
             sb3.append("}");
         }
         setText("if("+test.getText()+"){\n"+sb1+"}\n"+sb2+"\n"+sb3);
     }
-
+    public static String addTabs(String text) {
+        return FunctionDeclaration.addTabs(text);
+    }
 }

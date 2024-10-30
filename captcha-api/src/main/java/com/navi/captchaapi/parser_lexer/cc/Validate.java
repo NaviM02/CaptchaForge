@@ -12,11 +12,32 @@ public class Validate {
             SYMBOLNAMES.put("COLON", ":");
             SYMBOLNAMES.put("SEMICOLON", ";");
 
+            SYMBOLNAMES.put("PLUS", "+");
+            SYMBOLNAMES.put("MINUS", "-");
+            SYMBOLNAMES.put("TIMES", "*");
+            SYMBOLNAMES.put("SLASH", "/");
+            SYMBOLNAMES.put("REL_OP", "==' o '!=' o '<' o '<=' o '>' o '>='");
+            SYMBOLNAMES.put("OR", "||");
+            SYMBOLNAMES.put("AND", "&&");
+            SYMBOLNAMES.put("NOT", "!");
+            SYMBOLNAMES.put("STRING_LITERAL", "Cadena de texto valida");
+            SYMBOLNAMES.put("SIMPLE_STRING", "Cadena de texto valida");
+            SYMBOLNAMES.put("CHAR_LITERAL", "Caracter valido");
+            SYMBOLNAMES.put("NUMBER", "Numero valido");
             SYMBOLNAMES.put("EQUAL", "=");
-            SYMBOLNAMES.put("REALIZAR_SOLICITUD", "realizar_solicitud");
-            SYMBOLNAMES.put("REALIZAR_SOLICITUDES", "realizar_solicitudes");
-            SYMBOLNAMES.put("FIN_SOLICITUD_REALIZADA", "fin_solicitud_realizada");
-            SYMBOLNAMES.put("FIN_SOLICITUDES_REALIZADA", "fin_solicitudes_realizada");
+            SYMBOLNAMES.put("IDENTIFIER", "Identificador de variable");
+            SYMBOLNAMES.put("TEXT", "Texto");
+            SYMBOLNAMES.put("FUNCTION_ID", "Identificador de funcion");
+            SYMBOLNAMES.put("GLOBAL", "@global");
+
+            SYMBOLNAMES.put("INTEGER", "integer");
+            SYMBOLNAMES.put("DECIMAL", "decimal");
+            SYMBOLNAMES.put("BOOLEAN", "boolean");
+            SYMBOLNAMES.put("CHAR", "char");
+            SYMBOLNAMES.put("STRING", "string");
+            SYMBOLNAMES.put("TRUE", "true");
+            SYMBOLNAMES.put("FALSE", "false");
+
             SYMBOLNAMES.put("VERTICAL_BAR", "|");
             SYMBOLNAMES.put("LBRACKET", "[");
             SYMBOLNAMES.put("RBRACKET", "]");
@@ -24,12 +45,6 @@ public class Validate {
             SYMBOLNAMES.put("RBRACE", "}");
             SYMBOLNAMES.put("LT", "<");
             SYMBOLNAMES.put("GT", ">");
-            SYMBOLNAMES.put("EX", "!");
-            SYMBOLNAMES.put("Q", "Comillas");
-            SYMBOLNAMES.put("STRINGCONTENT", "Cadena válida");
-            SYMBOLNAMES.put("IDENTIFIER", "ID válido");
-            SYMBOLNAMES.put("QM", "?");
-            SYMBOLNAMES.put("DIGIT", "Un número");
         }
         return SYMBOLNAMES;
     }

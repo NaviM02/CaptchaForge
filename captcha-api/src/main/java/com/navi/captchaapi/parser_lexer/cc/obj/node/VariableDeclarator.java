@@ -17,8 +17,8 @@ public class VariableDeclarator extends Node {
 
     public VariableDeclarator(Location loc, Identifier id, Expr init) {
         super(loc, "");
-        if(init != null) setText(id.getText()+" = "+ init.getText());
-        else setText(id.getText());
+        if(init != null) setText(id.getName()+" = {v: "+ init.getText() + "}");
+        else setText(id.getName() + " = {}");
         this.id = id;
         this.init = init;
         this.type = null;

@@ -165,7 +165,7 @@ equal = "="
 
 /* Comments */
 init_multiline_comment =  "<!--"
-end_multiline_comment = "-->"<title style = "">
+end_multiline_comment = "-->"
 init_inline_comment = "!!"
 inline_comment = {init_inline_comment}[^\n]*
 multiline_comment = {init_multiline_comment}[^]*{end_multiline_comment}
@@ -182,7 +182,7 @@ function_id = "FUNCTION_"{identifier}
         return new Symbol(type, yyline+1,yycolumn+1);
     }
     private Symbol symbol(int type, Object value){
-        System.out.println(type + " line: " + (yyline+1) + " col: "+(yycolumn+1) + " " + value);
+        //System.out.println(type + " line: " + (yyline+1) + " col: "+(yycolumn+1) + " " + value);
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
     private void error(){

@@ -33,9 +33,24 @@ public class Program extends Node{
     public String getScript(){
         StringBuilder sb = new StringBuilder();
         for(Node node : body) {
-            if(!node.getText().isEmpty()) sb.append(node.getText()).append("\n");
+            if(node instanceof FunctionDeclaration fun){
+                if(addFun(fun.getId())){
+                    fun.setTextNode(fun.getId(), fun.getParams(), fun.getBody());
+                    sb.append(fun.getText()).append("\n");
+                }
+            }
+            else sb.append(node.getText()).append("\n");
         }
+        sb.append("\nshow();\n");
         return sb.toString();
+    }
+    public boolean addFun(String id){
+        switch (id){
+            case "INSERT", "ASC", "DESC", "LETPAR_NUM", "LETIMPAR_NUM", "REVERSE",
+                 "CARACTER_ALEATORIO", "NUM_ALEATORIO", "ALERT_INFO", "EXIT",
+                 "REDIRECT", "document.getElementById" -> {return false;}
+            default -> {return true;}
+        }
     }
     public void addFunctions(){
         var loc = new Location(0, 0);

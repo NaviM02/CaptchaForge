@@ -56,7 +56,7 @@ public class Validator {
     }
     private static final Pattern dimensionPattern = Pattern.compile("^(\\d+px|\\d+%)$");
 
-    public static String validateAndTransform(String input, int line, int col) {
+    public static String validateColor(String input, int line, int col) {
         if (colorMap.containsKey(input.toLowerCase())) {
             return colorMap.get(input.toLowerCase());
         }
@@ -69,52 +69,44 @@ public class Validator {
         return "#808080";
     }
 
-    public static boolean validatePixels(String input, int line, int col) {
-        if(pixelPattern.matcher(input).matches()) return true;
+    public static void validatePixels(String input, int line, int col) {
+        if(pixelPattern.matcher(input).matches()) return;
 
         ErrorsLP.addError(input, line, col, "Semántico", "Pixeles inválidos (Se esperaba: numero px)");
-        return false;
     }
-    public static boolean isValidFont(String input, int line, int col) {
-        if(validFonts.contains(input)) return true;
+    public static void isValidFont(String input, int line, int col) {
+        if(validFonts.contains(input)) return;
 
         ErrorsLP.addError(input, line, col, "Semántico", "Fuente inválida (Se esperaba: Courier,Verdana ,Arial, Geneva o sans-serif");
-        return false;
     }
 
-    public static boolean isValidAlignment(String input, int line, int col) {
-        if(validAlignments.contains(input)) return true;
+    public static void isValidAlignment(String input, int line, int col) {
+        if(validAlignments.contains(input)) return;
 
         ErrorsLP.addError(input, line, col, "Semántico", "Alineación inválida (Se esperaba: left, right, center o justify");
-        return false;
     }
 
-    public static boolean isValidInputType(String input, int line, int col) {
-        if(validInputTypes.contains(input)) return true;
+    public static void isValidInputType(String input, int line, int col) {
+        if(validInputTypes.contains(input)) return;
 
         ErrorsLP.addError(input, line, col, "Semántico", "Tipo de input inválido (Se esperaba: text, number, radio o checkbox)");
-        return false;
     }
-    public static boolean isValidInteger(String input, int line, int col) {
+    public static void isValidInteger(String input, int line, int col) {
         try {
             Integer.parseInt(input);
-            return true;
         } catch (NumberFormatException e) {
             ErrorsLP.addError(input, line, col, "Semántico", "Numero inválido");
-            return false;
         }
     }
-    public static boolean isValidClass(String input, int line, int col) {
-        if(classes.contains(input)) return true;
+    public static void isValidClass(String input, int line, int col) {
+        if(classes.contains(input)) return;
 
         ErrorsLP.addError(input, line, col, "Semántico", "Clase inválida (Se esperaba: row o column)");
-        return false;
     }
 
-    public static boolean isValidDimension(String input, int line, int col) {
-        if(dimensionPattern.matcher(input).matches()) return true;
+    public static void isValidDimension(String input, int line, int col) {
+        if(dimensionPattern.matcher(input).matches()) return;
 
         ErrorsLP.addError(input, line, col, "Semántico", "Dimensión inválida");
-        return false;
     }
 }
